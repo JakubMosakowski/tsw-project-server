@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="lodash.js"></script>
+</head>
+<body>
+	<script>
+		fetch("http://localhost:3000/konie")
+		.then( resp => resp.json())
+		.then( data => {
+			let wyniki = {};
+			let klasy = _.groupBy(data, h => h.klasa);
+			_.forEach(klasy, (klasa, numer) => {
+				wyniki[numer] = _.sortBy(klasa, k => {
+				    let suma = _.reduce(k.wynik.noty, (acc, n) => {
+				        acc.type += n.type;
+				        acc.head += n.head;
+				        acc.kloda += n.kloda;
+				        acc.nogi += n.nogi;
+				        acc.ruch += n.ruch;
+				        acc.suma += n.type + n.head + n.kloda + n.nogi + n.ruch;
+				        return acc;
+				    }, {
+				    	typ: 0,
+				    	glowa: 0,
+				    	kloda: 0,
+				    	nogi: 0,
+				    	ruch: 0,
+				    	suma: 0
+				    });
+				    k.suma = suma.suma;
+				    return -suma.suma;
+				});
+			});
+
+			console.log(wyniki);
+		})
+		.catch( err => console.log(err));
+	</script>
+</body>
+</html>

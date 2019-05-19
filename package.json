@@ -3,13 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "PORT=3002 node app.js"
   },
   "dependencies": {
+    "@types/express": "^4.16.1",
     "body-parser": "^1.18.3",
     "connect": "^3.6.6",
     "errorhandler": "^1.5.0",
     "express": "^4.16.4",
+    "express-basic-auth": "^1.2.0",
     "lodash": "^4.17.11",
     "lowdb": "^1.0.0",
     "morgan": "^1.9.1",
