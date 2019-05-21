@@ -11,7 +11,7 @@ export interface RacingHorse extends Horse{
     breeder: Human;
     owner: Human;
     lineage: Lineage;
-    result: Notes[];
+    notes: Notes[];
 }
 
 export interface Horse {
@@ -28,7 +28,7 @@ export interface Lineage {
 export interface Notes {
     type: number;
     head: number;
-    loh: number;
+    log: number;
     legs: number;
     movement: number;
 }
