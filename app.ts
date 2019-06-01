@@ -34,16 +34,12 @@ server.listen(80);
 clearDB();
 authorize();
 setupHeaders();
+setupGetters();
 setupPosts();
 setupDeletes();
-// setupGetters();
 setupUpdates();
 
 //TODO API
-//todo getters, danych o sędziach
-//todo getters, danych o klasach
-//todo getters, danych o koniach
-//todo getters, danych o pokazach
 //todo logowanie
 
 app.listen(port, () => {
@@ -82,6 +78,70 @@ function setupHeaders() {
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
     });
+}
+
+
+function setupGetters() {
+    app.get('/contest', (req, res) => {
+        res.json(getTable(CONTESTS));
+    });
+
+    app.get('/contest/:id', (req, res) => {
+        let fetched = getValueFromTable(CONTESTS, req.params.id);
+        if (fetched != null) {
+            res.json(fetched);
+        } else {
+            res.status(404).json(NOT_FOUND);
+        }
+    });
+
+    app.get('/horses', (req, res) => {
+        res.json(getTable(HORSES));
+    });
+
+    app.get('/horses/:id', (req, res) => {
+        let fetched = getValueFromTable(HORSES, req.params.id);
+        if (fetched != null) {
+            res.json(fetched);
+        } else {
+            res.status(404).json(NOT_FOUND);
+        }
+    });
+
+    app.get('/judges', (req, res) => {
+        res.json(getTable(JUDGES));
+    });
+
+    app.get('/judges/:id', (req, res) => {
+        let fetched = getValueFromTable(JUDGES, req.params.id);
+        if (fetched != null) {
+            res.json(fetched);
+        } else {
+            res.status(404).json(NOT_FOUND);
+        }
+    });
+
+    app.get('/ranks', (req, res) => {
+        res.json(getTable(RANKS));
+    });
+
+    app.get('/ranks/:id', (req, res) => {
+        let fetched = getValueFromTable(RANKS, req.params.id);
+        if (fetched != null) {
+            res.json(fetched);
+        } else {
+            res.status(404).json(NOT_FOUND);
+        }
+    });
+}
+
+function getTable(tableName: string) {
+    return db.get(tableName).value();
+}
+
+function getValueFromTable(tableName: string, id: string) {
+    return db.get(tableName)
+        .find({id: id}).value();
 }
 
 function setupPosts() {
@@ -338,7 +398,7 @@ function setupUpdates() {
             .write();
         if (db.get(CONTESTS)
             .find({id: req.params.id}).value() == null) {
-            res.json(NOT_FOUND);
+            res.status(404).json(NOT_FOUND);
         } else {
             res.json(contest);
         }
@@ -391,7 +451,7 @@ function setupUpdates() {
             .write();
         if (db.get(HORSES)
             .find({id: req.params.id}).value() == null) {
-            res.json(NOT_FOUND);
+            res.status(404).json(NOT_FOUND);
         } else {
             res.json(horse);
         }
@@ -418,7 +478,7 @@ function setupUpdates() {
 
         if (db.get(JUDGES)
             .find({id: req.params.id}).value() == null) {
-            res.json(NOT_FOUND);
+            res.status(404).json(NOT_FOUND);
         } else {
             res.json(judge);
         }
@@ -451,7 +511,7 @@ function setupUpdates() {
 
         if (db.get(RANKS)
             .find({id: req.params.id}).value() == null) {
-            res.json(NOT_FOUND);
+            res.status(404).json(NOT_FOUND);
         } else {
             res.json(rank);
         }
@@ -484,7 +544,7 @@ function setupDeletes() {
         if (deleteConfirmed) {
             res.json();
         } else {
-            res.json({msg: NOT_FOUND});
+            res.status(404).json(NOT_FOUND);
         }
     });
 
@@ -493,7 +553,7 @@ function setupDeletes() {
         if (deleteConfirmed) {
             res.json();
         } else {
-            res.json({msg: NOT_FOUND});
+            res.status(404).json(NOT_FOUND);
         }
     });
 
@@ -502,7 +562,7 @@ function setupDeletes() {
         if (deleteConfirmed) {
             res.json();
         } else {
-            res.json({msg: NOT_FOUND});
+            res.status(404).json(NOT_FOUND);
         }
     });
 
@@ -511,7 +571,7 @@ function setupDeletes() {
         if (deleteConfirmed) {
             res.json();
         } else {
-            res.json({msg: NOT_FOUND});
+            res.status(404).json(NOT_FOUND);
         }
     });
 }
