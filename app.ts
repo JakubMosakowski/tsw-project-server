@@ -1,5 +1,7 @@
 /* jshint strict: global, esversion: 6, devel: true, node: true */
 'use strict';
+import {Notes} from "./models/horse";
+
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
@@ -28,10 +30,9 @@ setupDeletes();
 setupUpdates();
 
 //TODO API
-//todo getters,  danych o sędziach
-//todo getters,  danych o klasach
-//todo  getters,  danych o koniach
-//todo bulk update koni (żeby zmienic im numery)
+//todo getters, danych o sędziach
+//todo getters, danych o klasach
+//todo getters, danych o koniach
 //todo dodawanie pokazu
 //todo edytowanie pokazu
 //todo usuwanie pokazu
@@ -96,12 +97,12 @@ function horseNumberWasNotUpdated(value: number, id: string): boolean {
 
 function setupUpdates() {
     app.put('/horse/:id', [
-        check('number').isNumeric(),
+        check('number').isInt(),
         check('number', 'Number must be unique!')
             .exists()
             .custom((value, {req}) => value === getFirstUnusedHorseNumber() || horseNumberWasNotUpdated(value, req.params.id)),
-        check('rankId').isNumeric(),
-        check('yearOfBirth').isNumeric(),
+        check('rankId').isInt(),
+        check('yearOfBirth').isInt(),
         check('color').isString(),
         check('sex').isString(),
         check('breeder.name').isString(),
@@ -126,6 +127,9 @@ function setupUpdates() {
             return res.status(422).json({errors: errors.array()});
         }
 
+        if (!isInRange(getAllNotes(req.body.notes), 0, 20, 0.5)) {
+            return res.status(422).json(NOTES_NOT_IN_RANGE);
+        }
         let horse = req.body;
         horse.id = req.params.id;
 
@@ -173,12 +177,12 @@ function setupUpdates() {
     });
 
     app.put('/rank/:id', [
-        check('number').isNumeric(),
+        check('number').isInt(),
         check('number', 'Number must be unique!')
             .exists()
             .custom((value, {req}) => value === getFirstUnusedRankNumber() || rankNumberWasNotUpdated(value, req.params.id)),
         check('category').isString(),
-        check('committee.*').isNumeric(),
+        check('committee.*').isInt(),
         check('committee').isArray(),
     ], function (req, res) {
         const errors = validationResult(req);
@@ -189,7 +193,6 @@ function setupUpdates() {
         rank.id = req.params.id;
 
         if (Object.keys(req.body).length != 4) {
-            console.log((Object.keys(req.body).length));
             return res.status(422).json(TOO_MANY_PARAMETERS);
         }
 
@@ -247,8 +250,8 @@ function setupDeletes() {
 function setupPosts() {
     app.post('/horse',
         [
-            check('rankId').isNumeric(),
-            check('yearOfBirth').isNumeric(),
+            check('rankId').isInt(),
+            check('yearOfBirth').isInt(),
             check('color').isString(),
             check('sex').isString(),
             check('breeder.name').isString(),
@@ -272,6 +275,10 @@ function setupPosts() {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(422).json({errors: errors.array()});
+            }
+
+            if (!isInRange(getAllNotes(req.body.notes), 0, 20, 0.5)) {
+                return res.status(422).json(NOTES_NOT_IN_RANGE);
             }
 
             let horse = req.body;
@@ -317,7 +324,7 @@ function setupPosts() {
     app.post('/rank',
         [
             check('category').isString(),
-            check('committee.*').isNumeric(),
+            check('committee.*').isInt(),
             check('committee').isArray(),
 
         ],
@@ -341,6 +348,45 @@ function setupPosts() {
 
             res.json(rank);
         });
+
+    app.post('/rearrangeHorseNumbers',
+        [
+            check('horseNumber.*.id').isInt(),
+            check('horseNumber.*.newNumber').isInt(),
+        ],
+        (req, res) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({errors: errors.array()});
+            }
+            let horseNumberList = req.body.horseNumberList;
+            let uniqueValues = [];
+            horseNumberList.forEach((item) => {
+                if (!uniqueValues.includes(item)) {
+                    uniqueValues.push(item)
+                }
+            });
+
+            if (uniqueValues.length !== horseNumberList.length) {
+                return res.status(422).json(DUPLICATED_NUMBERS);
+            }
+
+            if (!allHorsesExists(horseNumberList.map(item => item.id))) {
+                return res.status(422).json(INVALID_HORSES_ID);
+            }
+
+            if (horseNumberList.map(item => item.newNumber).sort().some((item, index) => item!= index + 1)) {
+                return res.status(422).json(GAP_BETWEEN_NUMBERS);
+            }
+
+            horseNumberList.forEach((item) => {
+                db.get(HORSES)
+                    .find({id: item.id})
+                    .assign({number: item.newNumber})
+                    .write();
+            });
+            res.json(req.body);
+        });
 }
 
 function getFirstMissingValueFromArray(numbers: number[]): number {
@@ -348,7 +394,6 @@ function getFirstMissingValueFromArray(numbers: number[]): number {
     let returnValue = numbers.length + 1;
     numbers.forEach((value, index) => {
         if (value != index + 1) {
-            console.log(`if ${value} ${index}`);
             returnValue = index + 1
         }
     });
@@ -367,8 +412,36 @@ function getFirstUnusedHorseNumber(): number {
     return getFirstMissingValueFromArray(numbers);
 }
 
+function isInRange(array: Array<number>, start: number, end: number, step: number): boolean {
+    let isInRange = true;
+    array.forEach(value => {
+        if (!(value >= start && value <= end && value % step == 0)) {
+            isInRange = false;
+            return false;
+        }
+    });
+    return isInRange
+}
+
+function getAllNotes(array: Array<Notes>): Array<number> {
+    let arrays = array.map((value) => [value.head, value.legs, value.log, value.movement, value.type]);
+    return [].concat(...arrays);
+}
+
+function allHorsesExists(ids: Array<number>) {
+    let arrayFromDb = db.get(HORSES).value().map(item => item.id).sort();
+
+    return ids.length == arrayFromDb.length && arrayFromDb.every((value, index) => {
+        return value === ids.sort()[index]
+    });
+}
+
 const NOT_FOUND = {msg: "VALUE WAS NOT FOUND"};
+const DUPLICATED_NUMBERS = {msg: "NUMBERS CANNOT BE DUPLICATED!"};
+const GAP_BETWEEN_NUMBERS = {msg: "NUMBERS CANNOT HAVE GAPS BETWEEN THEM!"};
+const INVALID_HORSES_ID = {msg: "HORSES IDS ARE INVALID!"};
 const TOO_MANY_PARAMETERS = {msg: "TOO MANY PARAMETERS PASSED"};
+const NOTES_NOT_IN_RANGE = {msg: "NOTES SHOULD BE FROM 0 to 20 with 0.5 step!"};
 const HORSES = 'horses';
 const JUDGES = 'judges';
 const RANKS = 'ranks';
