@@ -1,5 +1,5 @@
 export interface Rank {
-    id: number;
+    id: string;
     number: number;
     category: string;
     committee: number[];

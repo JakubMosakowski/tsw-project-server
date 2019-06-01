@@ -2,7 +2,7 @@ import {Human} from "./human";
 import {Rank} from "./rank";
 
 export interface RacingHorse extends Horse{
-    id: number;
+    id: string;
     number: number;
     rank: Rank;
     yearOfBirth: number;
