@@ -40,8 +40,6 @@ setupDeletes();
 setupUpdates();
 
 //TODO API
-//todo usuwanie pokazu
-//todo edytowanie pokazu
 //todo getters, danych o sędziach
 //todo getters, danych o klasach
 //todo getters, danych o koniach
@@ -481,6 +479,15 @@ function horseNumberWasNotUpdated(value: number, id: string): boolean {
 }
 
 function setupDeletes() {
+    app.delete('/contest/:id', function (req, res) {
+        let deleteConfirmed = removeFromDb(CONTESTS, req.params.id);
+        if (deleteConfirmed) {
+            res.json();
+        } else {
+            res.json({msg: NOT_FOUND});
+        }
+    });
+
     app.delete('/horse/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(HORSES, req.params.id);
         if (deleteConfirmed) {
