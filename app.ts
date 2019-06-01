@@ -302,6 +302,50 @@ function verifyIds(tableName: string, array: Array<string>) {
 }
 
 function setupUpdates() {
+    app.put('/contest/:id', [
+        check('horseIds').isArray(),
+        check('judgeIds').isArray(),
+        check('rankIds').isArray(),
+        check('horseIds.*').isString(),
+        check('judgeIds.*').isString(),
+        check('rankIds.*').isString(),
+        check('horseIds', NON_EXISTENT_HORSE_IDS.msg)
+            .exists()
+            .custom((value) => verifyIds(HORSES, value)),
+
+        check('judgeIds', NON_EXISTENT_JUDGE_IDS)
+            .exists()
+            .custom((value) => verifyIds(JUDGES, value)),
+
+        check('rankIds', NON_EXISTENT_RANK_IDS)
+            .exists()
+            .custom((value) => verifyIds(RANKS, value)),
+
+    ], function (req, res) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }
+
+        let contest = req.body;
+        contest.id = req.params.id;
+
+        if (Object.keys(req.body).length != 4) {
+            return res.status(422).json(TOO_MANY_PARAMETERS);
+        }
+
+        db.get(CONTESTS)
+            .find({id: req.params.id})
+            .assign(contest)
+            .write();
+        if (db.get(CONTESTS)
+            .find({id: req.params.id}).value() == null) {
+            res.json(NOT_FOUND);
+        } else {
+            res.json(contest);
+        }
+    });
+
     app.put('/horse/:id', [
         check('number').isInt(),
         check('number', 'Number must be unique!')
