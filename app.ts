@@ -8,8 +8,9 @@ import {
     NOTES_NOT_IN_RANGE,
     TOO_MANY_PARAMETERS
 } from "./models/errorMessages";
-import {CONTESTS, HORSES, JUDGES, RANKS} from "./models/tableNames";
+import {CONTESTS, HORSES, JUDGES, RANKS, USERS} from "./models/tableNames";
 import {getFirstMissingValueFromArray, isInRange} from "./extensions";
+import {User} from "./models/User";
 
 const express = require('express');
 const app = express();
@@ -19,34 +20,31 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 const port = process.env.PORT;
-const basicAuth = require('express-basic-auth');
 const server = require('http').createServer(app);
 const {check, validationResult} = require('express-validator/check');
 const io = require('socket.io')(server);
 const NUMBER = 'number';
 const uuidv1 = require('uuid/v1');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(express.urlencoded({extended: false}));
 server.listen(80);
 
-clearDB();
-authorize();
+setupDb();
 setupHeaders();
 setupGetters();
 setupPosts();
 setupDeletes();
 setupUpdates();
 
-//TODO API
-//todo logowanie
-
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
 
-function clearDB() {
+function setupDb() {
     const newState = {};
     db.setState(newState);
     db.write();
@@ -54,22 +52,14 @@ function clearDB() {
         contests: [],
         horses: [],
         judges: [],
-        ranks: []
+        ranks: [],
+        users: [
+            {
+                name: "admin",
+                password: bcrypt.hashSync("12345", 8)
+            }
+        ]
     }).write();
-}
-
-function authorize() {
-    app.use(basicAuth({
-        users: {'admin': 'admin'},
-        challenge: true,
-        unauthorizedResponse: getUnauthorizedResponse
-    }));
-}
-
-function getUnauthorizedResponse(req) {
-    return req.auth
-        ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
-        : 'No credentials provided'
 }
 
 function setupHeaders() {
@@ -145,6 +135,18 @@ function getValueFromTable(tableName: string, id: string) {
 }
 
 function setupPosts() {
+    app.post('/login', (req, res) => {
+        let user = db.get(USERS).find({name: req.body.name}).value() as User;
+
+        if (!user) return res.status(404).send(NOT_FOUND);
+        let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+        if (!passwordIsValid) return res.status(401).send({auth: false, token: null});
+        let token = jwt.sign({name: user.name}, "config.secret", {
+            expiresIn: 86400 // expires in 24 hours
+        });
+        res.status(200).send({auth: true, token: token, user: user});
+    });
+
     app.post('/contest',
         [
             check('horseIds').isArray(),
