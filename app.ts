@@ -10,7 +10,7 @@ import {
 } from "./models/errorMessages";
 import {CONTESTS, HORSES, JUDGES, RANKS, USERS} from "./models/tableNames";
 import {getFirstMissingValueFromArray, isInRange} from "./extensions";
-import {User} from "./models/User";
+import {User} from "./models/user";
 
 const express = require('express');
 const app = express();
@@ -72,11 +72,11 @@ function setupHeaders() {
 
 
 function setupGetters() {
-    app.get('/contest', (req, res) => {
+    app.get('/contests', (req, res) => {
         res.json(getTable(CONTESTS));
     });
 
-    app.get('/contest/:id', (req, res) => {
+    app.get('/contests/:id', (req, res) => {
         let fetched = getValueFromTable(CONTESTS, req.params.id);
         if (fetched != null) {
             res.json(fetched);
@@ -147,7 +147,7 @@ function setupPosts() {
         res.status(200).send({auth: true, token: token, user: user});
     });
 
-    app.post('/contest',
+    app.post('/contests',
         [
             check('horseIds').isArray(),
             check('judgeIds').isArray(),
@@ -191,7 +191,7 @@ function setupPosts() {
             res.json(contest);
         });
 
-    app.post('/horse',
+    app.post('/horses',
         [
             check('rankId').isInt(),
             check('yearOfBirth').isInt(),
@@ -239,7 +239,7 @@ function setupPosts() {
             res.json(horse);
         });
 
-    app.post('/judge',
+    app.post('/judges',
         [
             check('name').isString(),
             check('country').isString(),
@@ -264,7 +264,7 @@ function setupPosts() {
             res.json(judge);
         });
 
-    app.post('/rank',
+    app.post('/ranks',
         [
             check('category').isString(),
             check('committee.*').isInt(),
@@ -362,7 +362,7 @@ function verifyIds(tableName: string, array: Array<string>) {
 }
 
 function setupUpdates() {
-    app.put('/contest/:id', [
+    app.put('/contests/:id', [
         check('horseIds').isArray(),
         check('judgeIds').isArray(),
         check('rankIds').isArray(),
@@ -406,7 +406,7 @@ function setupUpdates() {
         }
     });
 
-    app.put('/horse/:id', [
+    app.put('/horses/:id', [
         check('number').isInt(),
         check('number', 'Number must be unique!')
             .exists()
@@ -459,7 +459,7 @@ function setupUpdates() {
         }
     });
 
-    app.put('/judge/:id', [
+    app.put('/judges/:id', [
         check('name').isString(),
         check('country').isString(),
     ], function (req, res) {
@@ -486,7 +486,7 @@ function setupUpdates() {
         }
     });
 
-    app.put('/rank/:id', [
+    app.put('/ranks/:id', [
         check('number').isInt(),
         check('number', 'Number must be unique!')
             .exists()
@@ -541,7 +541,7 @@ function horseNumberWasNotUpdated(value: number, id: string): boolean {
 }
 
 function setupDeletes() {
-    app.delete('/contest/:id', function (req, res) {
+    app.delete('/contests/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(CONTESTS, req.params.id);
         if (deleteConfirmed) {
             res.json();
@@ -550,7 +550,7 @@ function setupDeletes() {
         }
     });
 
-    app.delete('/horse/:id', function (req, res) {
+    app.delete('/horses/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(HORSES, req.params.id);
         if (deleteConfirmed) {
             res.json();
@@ -559,7 +559,7 @@ function setupDeletes() {
         }
     });
 
-    app.delete('/judge/:id', function (req, res) {
+    app.delete('/judges/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(JUDGES, req.params.id);
         if (deleteConfirmed) {
             res.json();
@@ -568,7 +568,7 @@ function setupDeletes() {
         }
     });
 
-    app.delete('/rank/:id', function (req, res) {
+    app.delete('/ranks/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(RANKS, req.params.id);
         if (deleteConfirmed) {
             res.json();
