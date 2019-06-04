@@ -32,7 +32,6 @@ const server = http.createServer(app).listen(port, () => {
 });
 const io = socket.listen(server);
 
-
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(express.urlencoded({extended: false}));
@@ -43,11 +42,9 @@ setupGetters();
 setupPosts();
 setupUpdates();
 setupDeletes();
+setupSockets();
 
 function setupDb() {
-    const newState = {};
-    db.setState(newState);
-    db.write();
     db.defaults({
         contests: [],
         horses: [],
@@ -150,6 +147,7 @@ function setupPosts() {
 
     app.post('/contests',
         [
+            check('name').isString(),
             check('horseIds').isArray(),
             check('judgeIds').isArray(),
             check('rankIds').isArray(),
@@ -177,7 +175,7 @@ function setupPosts() {
             let contest = req.body;
             contest.id = uuidv1();
 
-            if (Object.keys(req.body).length != 4) {
+            if (Object.keys(req.body).length != 5) {
                 return res.status(422).json(TOO_MANY_PARAMETERS);
             }
 
@@ -188,7 +186,7 @@ function setupPosts() {
             db.get(CONTESTS)
                 .push(contest)
                 .write();
-            io.emit('contests', getTable(CONTESTS));
+            io.emit(CONTESTS, getTable(CONTESTS));
             res.json(contest);
         });
 
@@ -237,6 +235,7 @@ function setupPosts() {
                 .push(horse)
                 .write();
 
+            io.emit(HORSES, getTable(HORSES));
             res.json(horse);
         });
 
@@ -262,6 +261,7 @@ function setupPosts() {
                 .push(judge)
                 .write();
 
+            io.emit(JUDGES, getTable(JUDGES));
             res.json(judge);
         });
 
@@ -290,6 +290,7 @@ function setupPosts() {
                 .push(rank)
                 .write();
 
+            io.emit(RANKS, getTable(RANKS));
             res.json(rank);
         });
 
@@ -329,6 +330,7 @@ function setupPosts() {
                     .assign({number: item.newNumber})
                     .write();
             });
+            io.emit(HORSES, getTable(HORSES));
             res.json(req.body);
         });
 }
@@ -364,6 +366,7 @@ function verifyIds(tableName: string, array: Array<string>) {
 
 function setupUpdates() {
     app.put('/contests/:id', [
+        check('name').isString(),
         check('horseIds').isArray(),
         check('judgeIds').isArray(),
         check('rankIds').isArray(),
@@ -391,7 +394,7 @@ function setupUpdates() {
         let contest = req.body;
         contest.id = req.params.id;
 
-        if (Object.keys(req.body).length != 4) {
+        if (Object.keys(req.body).length != 5) {
             return res.status(422).json(TOO_MANY_PARAMETERS);
         }
 
@@ -403,7 +406,7 @@ function setupUpdates() {
             .find({id: req.params.id}).value() == null) {
             res.status(404).json(NOT_FOUND);
         } else {
-            io.emit('contests', getTable(CONTESTS));
+            io.emit(CONTESTS, getTable(CONTESTS));
             res.json(contest);
         }
     });
@@ -457,6 +460,7 @@ function setupUpdates() {
             .find({id: req.params.id}).value() == null) {
             res.status(404).json(NOT_FOUND);
         } else {
+            io.emit(HORSES, getTable(HORSES));
             res.json(horse);
         }
     });
@@ -484,6 +488,7 @@ function setupUpdates() {
             .find({id: req.params.id}).value() == null) {
             res.status(404).json(NOT_FOUND);
         } else {
+            io.emit(JUDGES, getTable(JUDGES));
             res.json(judge);
         }
     });
@@ -517,6 +522,7 @@ function setupUpdates() {
             .find({id: req.params.id}).value() == null) {
             res.status(404).json(NOT_FOUND);
         } else {
+            io.emit(RANKS, getTable(RANKS));
             res.json(rank);
         }
     });
@@ -546,7 +552,7 @@ function setupDeletes() {
     app.delete('/contests/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(CONTESTS, req.params.id);
         if (deleteConfirmed) {
-            io.emit('contests', getTable(CONTESTS));
+            io.emit(CONTESTS, getTable(CONTESTS));
             res.json();
         } else {
             res.status(404).json(NOT_FOUND);
@@ -556,6 +562,7 @@ function setupDeletes() {
     app.delete('/horses/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(HORSES, req.params.id);
         if (deleteConfirmed) {
+            io.emit(HORSES, getTable(HORSES));
             res.json();
         } else {
             res.status(404).json(NOT_FOUND);
@@ -565,6 +572,8 @@ function setupDeletes() {
     app.delete('/judges/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(JUDGES, req.params.id);
         if (deleteConfirmed) {
+            io.emit(JUDGES, getTable(JUDGES));
+
             res.json();
         } else {
             res.status(404).json(NOT_FOUND);
@@ -574,6 +583,7 @@ function setupDeletes() {
     app.delete('/ranks/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(RANKS, req.params.id);
         if (deleteConfirmed) {
+            io.emit(RANKS, getTable(RANKS));
             res.json();
         } else {
             res.status(404).json(NOT_FOUND);
@@ -592,3 +602,12 @@ function removeFromDb(dbName: string, id: string): boolean {
 
     return toRemove != null;
 }
+function setupSockets() {
+    io.on('connection', () => {
+        io.emit(JUDGES, getTable(JUDGES));
+        io.emit(HORSES, getTable(HORSES));
+        io.emit(RANKS, getTable(RANKS));
+        io.emit(CONTESTS, getTable(CONTESTS));
+    });
+}
+
