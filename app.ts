@@ -20,29 +20,29 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 const port = process.env.PORT;
-const server = require('http').createServer(app);
 const {check, validationResult} = require('express-validator/check');
-const io = require('socket.io')(server);
 const NUMBER = 'number';
 const uuidv1 = require('uuid/v1');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const socket = require('socket.io')
+const http = require('http');
+const server = http.createServer(app).listen(port, () => {
+    console.log("Express server listening on port " + port);
+});
+const io = socket.listen(server);
+
 
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(express.urlencoded({extended: false}));
-server.listen(80);
 
 setupDb();
 setupHeaders();
 setupGetters();
 setupPosts();
-setupDeletes();
 setupUpdates();
-
-app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
-});
+setupDeletes();
 
 function setupDb() {
     const newState = {};
@@ -188,7 +188,7 @@ function setupPosts() {
             db.get(CONTESTS)
                 .push(contest)
                 .write();
-
+            io.emit('contests', getTable(CONTESTS));
             res.json(contest);
         });
 
@@ -403,6 +403,7 @@ function setupUpdates() {
             .find({id: req.params.id}).value() == null) {
             res.status(404).json(NOT_FOUND);
         } else {
+            io.emit('contests', getTable(CONTESTS));
             res.json(contest);
         }
     });
@@ -545,6 +546,7 @@ function setupDeletes() {
     app.delete('/contests/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(CONTESTS, req.params.id);
         if (deleteConfirmed) {
+            io.emit('contests', getTable(CONTESTS));
             res.json();
         } else {
             res.status(404).json(NOT_FOUND);
@@ -582,8 +584,11 @@ function setupDeletes() {
 
 function removeFromDb(dbName: string, id: string): boolean {
     let toRemove = db.get(dbName).find({id: id}).value();
-    db.get(dbName)
-        .remove(toRemove)
+    if(toRemove){
+        db.get(dbName)
+            .remove(toRemove)
         .write();
+    }
+
     return toRemove != null;
 }
