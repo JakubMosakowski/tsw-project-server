@@ -25,7 +25,7 @@ const NUMBER = 'number';
 const uuidv1 = require('uuid/v1');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const socket = require('socket.io')
+const socket = require('socket.io');
 const http = require('http');
 const server = http.createServer(app).listen(port, () => {
     console.log("Express server listening on port " + port);
@@ -562,6 +562,7 @@ function setupDeletes() {
     app.delete('/horses/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(HORSES, req.params.id);
         if (deleteConfirmed) {
+            reorderHorses();
             io.emit(HORSES, getTable(HORSES));
             res.json();
         } else {
@@ -591,7 +592,6 @@ function setupDeletes() {
     });
 }
 
-
 function removeFromDb(dbName: string, id: string): boolean {
     let toRemove = db.get(dbName).find({id: id}).value();
     if(toRemove){
@@ -602,6 +602,11 @@ function removeFromDb(dbName: string, id: string): boolean {
 
     return toRemove != null;
 }
+
+function reorderHorses(){
+    //TODO write that method
+}
+
 function setupSockets() {
     io.on('connection', () => {
         io.emit(JUDGES, getTable(JUDGES));
