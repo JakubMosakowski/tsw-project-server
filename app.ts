@@ -192,7 +192,7 @@ function setupPosts() {
 
     app.post('/horses',
         [
-            check('rankId').isInt(),
+            check('rankId').isString(),
             check('yearOfBirth').isInt(),
             check('color').isString(),
             check('sex').isString(),
@@ -226,6 +226,8 @@ function setupPosts() {
             let horse = req.body;
             horse.id = uuidv1();
             horse.number = getFirstUnusedHorseNumber();
+            horse.rank = getTable(RANKS).find(it => it.id == horse.rankId);
+            delete horse.rankId;
 
             if (Object.keys(req.body).length != 12) {
                 return res.status(422).json(TOO_MANY_PARAMETERS);
@@ -268,7 +270,7 @@ function setupPosts() {
     app.post('/ranks',
         [
             check('category').isString(),
-            check('committee.*').isInt(),
+            check('committee.*').isString(),
             check('committee').isArray(),
 
         ],
@@ -285,7 +287,8 @@ function setupPosts() {
             if (Object.keys(req.body).length != 4) {
                 return res.status(422).json(TOO_MANY_PARAMETERS);
             }
-
+//todo walidacja czy takie ranki istnieja przy tworzeniu/edytowaniu konia
+            //todo walidacja czy rank ma dobrych judge
             db.get(RANKS)
                 .push(rank)
                 .write();
@@ -416,7 +419,7 @@ function setupUpdates() {
         check('number', 'Number must be unique!')
             .exists()
             .custom((value, {req}) => value === getFirstUnusedHorseNumber() || horseNumberWasNotUpdated(value, req.params.id)),
-        check('rankId').isInt(),
+        check('rankId').isString(),
         check('yearOfBirth').isInt(),
         check('color').isString(),
         check('sex').isString(),
@@ -447,6 +450,8 @@ function setupUpdates() {
         }
         let horse = req.body;
         horse.id = req.params.id;
+        horse.rank = getTable(RANKS).find(it => it.id == horse.rankId);
+        delete horse.rankId;
 
         if (Object.keys(req.body).length != 12) {
             return res.status(422).json(TOO_MANY_PARAMETERS);
