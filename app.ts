@@ -2,13 +2,14 @@
 'use strict';
 import {Notes} from "./models/horse";
 import {
-    DUPLICATED_NUMBERS, GAP_BETWEEN_NUMBERS, INVALID_HORSES_ID,
-    NON_EXISTENT_HORSE_IDS, NON_EXISTENT_JUDGE_IDS, NON_EXISTENT_RANK_IDS,
+    DUPLICATED_NUMBERS,
+    GAP_BETWEEN_NUMBERS,
+    INVALID_HORSES_ID,
     NOT_FOUND,
     NOTES_NOT_IN_RANGE,
     TOO_MANY_PARAMETERS
 } from "./models/errorMessages";
-import {CONTESTS, HORSES, JUDGES, RANKS, USERS} from "./models/tableNames";
+import {HORSES, JUDGES, RANKS, USERS} from "./models/tableNames";
 import {getFirstMissingValueFromArray, isInRange} from "./extensions";
 import {User} from "./models/user";
 
@@ -46,7 +47,6 @@ setupSockets();
 
 function setupDb() {
     db.defaults({
-        contests: [],
         horses: [],
         judges: [],
         ranks: [],
@@ -70,19 +70,6 @@ function setupHeaders() {
 
 
 function setupGetters() {
-    app.get('/contests', (req, res) => {
-        res.json(getTable(CONTESTS));
-    });
-
-    app.get('/contests/:id', (req, res) => {
-        let fetched = getValueFromTable(CONTESTS, req.params.id);
-        if (fetched != null) {
-            res.json(fetched);
-        } else {
-            res.status(404).json(NOT_FOUND);
-        }
-    });
-
     app.get('/horses', (req, res) => {
         res.json(getTable(HORSES));
     });
@@ -144,51 +131,6 @@ function setupPosts() {
         });
         res.status(200).send({auth: true, token: token, user: user});
     });
-
-    app.post('/contests',
-        [
-            check('name').isString(),
-            check('horseIds').isArray(),
-            check('judgeIds').isArray(),
-            check('rankIds').isArray(),
-            check('horseIds.*').isString(),
-            check('judgeIds.*').isString(),
-            check('rankIds.*').isString(),
-            check('horseIds', NON_EXISTENT_HORSE_IDS.msg)
-                .exists()
-                .custom((value) => verifyIds(HORSES, value)),
-
-            check('judgeIds', NON_EXISTENT_JUDGE_IDS)
-                .exists()
-                .custom((value) => verifyIds(JUDGES, value)),
-
-            check('rankIds', NON_EXISTENT_RANK_IDS)
-                .exists()
-                .custom((value) => verifyIds(RANKS, value)),
-        ],
-        (req, res) => {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({errors: errors.array()});
-            }
-
-            let contest = req.body;
-            contest.id = uuidv1();
-
-            if (Object.keys(req.body).length != 5) {
-                return res.status(422).json(TOO_MANY_PARAMETERS);
-            }
-
-            contest.horseIds = [...new Set(contest.horseIds)];
-            contest.judgeIds = [...new Set(contest.judgeIds)];
-            contest.rankIds = [...new Set(contest.rankIds)];
-
-            db.get(CONTESTS)
-                .push(contest)
-                .write();
-            io.emit(CONTESTS, getTable(CONTESTS));
-            res.json(contest);
-        });
 
     app.post('/horses',
         [
@@ -287,7 +229,7 @@ function setupPosts() {
             if (Object.keys(req.body).length != 4) {
                 return res.status(422).json(TOO_MANY_PARAMETERS);
             }
-//todo walidacja czy takie ranki istnieja przy tworzeniu/edytowaniu konia
+            //todo walidacja czy takie ranki istnieja przy tworzeniu/edytowaniu konia
             //todo walidacja czy rank ma dobrych judge
             db.get(RANKS)
                 .push(rank)
@@ -363,57 +305,7 @@ function allHorsesExists(ids: Array<number>) {
     });
 }
 
-function verifyIds(tableName: string, array: Array<string>) {
-    return array.every(item => db.get(tableName).value().map(item => item.id).includes(item));
-}
-
 function setupUpdates() {
-    app.put('/contests/:id', [
-        check('name').isString(),
-        check('horseIds').isArray(),
-        check('judgeIds').isArray(),
-        check('rankIds').isArray(),
-        check('horseIds.*').isString(),
-        check('judgeIds.*').isString(),
-        check('rankIds.*').isString(),
-        check('horseIds', NON_EXISTENT_HORSE_IDS.msg)
-            .exists()
-            .custom((value) => verifyIds(HORSES, value)),
-
-        check('judgeIds', NON_EXISTENT_JUDGE_IDS)
-            .exists()
-            .custom((value) => verifyIds(JUDGES, value)),
-
-        check('rankIds', NON_EXISTENT_RANK_IDS)
-            .exists()
-            .custom((value) => verifyIds(RANKS, value)),
-
-    ], function (req, res) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(422).json({errors: errors.array()});
-        }
-
-        let contest = req.body;
-        contest.id = req.params.id;
-
-        if (Object.keys(req.body).length != 5) {
-            return res.status(422).json(TOO_MANY_PARAMETERS);
-        }
-
-        db.get(CONTESTS)
-            .find({id: req.params.id})
-            .assign(contest)
-            .write();
-        if (db.get(CONTESTS)
-            .find({id: req.params.id}).value() == null) {
-            res.status(404).json(NOT_FOUND);
-        } else {
-            io.emit(CONTESTS, getTable(CONTESTS));
-            res.json(contest);
-        }
-    });
-
     app.put('/horses/:id', [
         check('number').isInt(),
         check('number', 'Number must be unique!')
@@ -554,16 +446,6 @@ function horseNumberWasNotUpdated(value: number, id: string): boolean {
 }
 
 function setupDeletes() {
-    app.delete('/contests/:id', function (req, res) {
-        let deleteConfirmed = removeFromDb(CONTESTS, req.params.id);
-        if (deleteConfirmed) {
-            io.emit(CONTESTS, getTable(CONTESTS));
-            res.json();
-        } else {
-            res.status(404).json(NOT_FOUND);
-        }
-    });
-
     app.delete('/horses/:id', function (req, res) {
         let deleteConfirmed = removeFromDb(HORSES, req.params.id);
         if (deleteConfirmed) {
@@ -599,17 +481,18 @@ function setupDeletes() {
 
 function removeFromDb(dbName: string, id: string): boolean {
     let toRemove = db.get(dbName).find({id: id}).value();
-    if(toRemove){
+    if (toRemove) {
         db.get(dbName)
             .remove(toRemove)
-        .write();
+            .write();
     }
 
     return toRemove != null;
 }
 
-function reorderHorses(){
+function reorderHorses() {
     //TODO write that method
+    //TODO Add basic auth
 }
 
 function setupSockets() {
@@ -617,7 +500,6 @@ function setupSockets() {
         io.emit(JUDGES, getTable(JUDGES));
         io.emit(HORSES, getTable(HORSES));
         io.emit(RANKS, getTable(RANKS));
-        io.emit(CONTESTS, getTable(CONTESTS));
     });
 }
 
