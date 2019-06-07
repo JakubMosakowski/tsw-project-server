@@ -510,6 +510,7 @@ function reorderHorses() {
     //TODO klasa ma W KLIENCIE pole zakończona
     //TODO popraw pola w generatorze danych
     //TODO postaw to na heroku
+    //TODO postaw generator na heroku
 }
 
 function setupSockets() {

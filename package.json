@@ -20,6 +20,8 @@
     "lowdb": "^1.0.0",
     "morgan": "^1.9.1",
     "socket.io": "^2.2.0",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.5.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
