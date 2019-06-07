@@ -28,6 +28,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const socket = require('socket.io');
 const http = require('http');
+const axios = require('axios');
 const server = http.createServer(app).listen(port, () => {
     console.log("Express server listening on port " + port);
 });
@@ -67,7 +68,6 @@ function setupHeaders() {
         next();
     });
 }
-
 
 function setupGetters() {
     app.get('/horses', (req, res) => {
@@ -120,6 +120,14 @@ function getValueFromTable(tableName: string, id: string) {
 }
 
 function setupPosts() {
+    app.post('/reloadDb', (req, res) => {
+        //TODO clear bazy
+        //TODO request po konie i dodanie
+        //TODO request po ranki i dodanie
+        //TODO request po konie i dodanie
+        //TODO jeżeli gdziekolwiek błąd to zwróć błąd
+    });
+
     app.post('/login', (req, res) => {
         let user = db.get(USERS).find({name: req.body.name}).value() as User;
 
@@ -491,8 +499,17 @@ function removeFromDb(dbName: string, id: string): boolean {
 }
 
 function reorderHorses() {
+    //TODO bulk insert z generatora
     //TODO write that method
     //TODO Add basic auth
+    //TODO koń numer ma trafiać na wolne miejsce
+    //TODO po usunięciu konia mają się mergować miejsca
+    //TODO blokowamie usuwania sędziego jeżeli jesst w jakiejś klasie
+    //TODO blokowanie usuwania klasy jeżeli jest jakiś koń przypisany do niej
+    //TODO klasa ma pole "zakończona"
+    //TODO klasa ma W KLIENCIE pole zakończona
+    //TODO popraw pola w generatorze danych
+    //TODO postaw to na heroku
 }
 
 function setupSockets() {
