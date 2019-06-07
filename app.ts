@@ -504,7 +504,7 @@ function setupUpdates() {
             .exists()
             .custom((value, {req}) => value === getFirstUnusedRankNumber() || rankNumberWasNotUpdated(value, req.params.id)),
         check('category').isString(),
-        check('committee.*').isInt(),
+        check('committee.*').isString(),
         check('committee').isArray(),
     ], function (req, res) {
         const errors = validationResult(req);
