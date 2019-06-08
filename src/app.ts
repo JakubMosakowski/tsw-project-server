@@ -12,6 +12,7 @@ import {
 import {HORSES, JUDGES, RANKS, USERS} from "./models/tableNames";
 import {getFirstMissingValueFromArray, isInRange} from "./extensions";
 import {User} from "./models/user";
+import {API} from "./API";
 
 const express = require('express');
 const app = express();
@@ -20,7 +21,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const db = low(adapter);
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 const {check, validationResult} = require('express-validator/check');
 const NUMBER = 'number';
 const uuidv1 = require('uuid/v1');
@@ -28,7 +29,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const socket = require('socket.io');
 const http = require('http');
-const axios = require('axios');
 const server = http.createServer(app).listen(port, () => {
     console.log("Express server listening on port " + port);
 });
@@ -121,11 +121,17 @@ function getValueFromTable(tableName: string, id: string) {
 
 function setupPosts() {
     app.post('/reloadDb', (req, res) => {
-        //TODO clear bazy
-        //TODO request po konie i dodanie
-        //TODO request po ranki i dodanie
-        //TODO request po konie i dodanie
-        //TODO jeżeli gdziekolwiek błąd to zwróć błąd
+        setupDb();
+        fillDb(
+            () => {
+                res.status(200).send();
+            },
+            () => {
+                res.status(400).send();
+            }
+        );
+
+
     });
 
     app.post('/login', (req, res) => {
@@ -310,6 +316,21 @@ function allHorsesExists(ids: Array<number>) {
 
     return ids.length == arrayFromDb.length && arrayFromDb.every((value, index) => {
         return value === ids.sort()[index]
+    });
+}
+
+function fillDb(onFinished, onError) {
+    Promise.all([API.getJudges(), API.getHorses(), API.getRanks()]).then(values => {
+        db.set(JUDGES, values[0].data)
+            .write();
+        db.set(HORSES, values[1].data)
+            .write();
+        db.set(RANKS, values[2].data)
+            .write();
+        onFinished();
+    }).catch(err => {
+        console.log(err);
+        onError();
     });
 }
 
@@ -499,17 +520,16 @@ function removeFromDb(dbName: string, id: string): boolean {
 }
 
 function reorderHorses() {
-    //TODO bulk insert z generatora
     //TODO write that method
+    //TODO bulk insert z generatora
     //TODO Add basic auth
     //TODO koń numer ma trafiać na wolne miejsce
     //TODO po usunięciu konia mają się mergować miejsca
     //TODO blokowamie usuwania sędziego jeżeli jesst w jakiejś klasie
     //TODO blokowanie usuwania klasy jeżeli jest jakiś koń przypisany do niej
-    //TODO klasa ma pole "zakończona"
-    //TODO klasa ma W KLIENCIE pole zakończona
-    //TODO popraw pola w generatorze danych
-    //TODO postaw generator na heroku
+    //TODO klasa ma pole "finished"
+    //TODO klasa ma W KLIENCIE pole finished
+    //TODO klasa w generatorze ma pole finished = false
 }
 
 function setupSockets() {
