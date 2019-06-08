@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "tsc && PORT=3002 node start.ts"
+    "start": "tsc && node start.ts"
   },
   "dependencies": {
     "@types/express": "^4.16.1",

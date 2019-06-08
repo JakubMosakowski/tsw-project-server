@@ -1,3 +1,8 @@
 *.idea
 db.json
 show-data-serve-ch/lodash.js
+*.js
+*.css
+*.js.map
+*.css.map
+node_modules
