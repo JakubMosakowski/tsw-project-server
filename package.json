@@ -23,10 +23,5 @@
     "tsc": "^1.20150623.0",
     "typescript": "^3.5.1",
     "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
-    "@babel/register": "^7.4.4"
   }
 }
