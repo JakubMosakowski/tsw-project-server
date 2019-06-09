@@ -1,27 +1,34 @@
 {
   "name": "tsw-project-server",
   "version": "0.0.0",
+  "author": "Jakub Mosakowski",
   "private": true,
   "scripts": {
-    "start": "tsc && node start.ts"
+    "start": "tsc && node src/start.ts",
+    "dev": "tsc && nodemon src/start.ts"
   },
   "dependencies": {
     "@types/express": "^4.16.1",
+    "@types/mongodb": "^3.1.28",
+    "@types/mongoose": "^5.5.5",
     "axios": "^0.19.0",
     "bcrypt": "^3.0.6",
-    "body-parser": "^1.18.3",
-    "connect": "^3.6.6",
-    "errorhandler": "^1.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "envalid": "^5.0.0",
     "express": "^4.16.4",
     "express-basic-auth": "^1.2.0",
     "express-validator": "^5.3.1",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.11",
-    "lowdb": "^1.0.0",
+    "mongodb": "^3.2.7",
+    "mongoose": "^5.5.14",
     "morgan": "^1.9.1",
     "socket.io": "^2.2.0",
-    "tsc": "^1.20150623.0",
     "typescript": "^3.5.1",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1",
+    "ts-node": "^8.2.0"
   }
 }

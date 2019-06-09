@@ -5,3 +5,4 @@ show-data-serve-ch/lodash.js
 *.js.map
 *.css.map
 node_modules
+.env
