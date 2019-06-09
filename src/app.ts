@@ -323,8 +323,14 @@ function fillDb(onFinished, onError) {
     Promise.all([API.getJudges(), API.getHorses(), API.getRanks()]).then(values => {
         db.set(JUDGES, values[0].data)
             .write();
-        db.set(HORSES, values[1].data)
+
+        const horses = values[1].data.map(item => {
+            item.rank = getTable(RANKS).find(it => it.id == item.rankId);
+            delete item.rankId;
+        });
+        db.set(HORSES, horses)
             .write();
+
         db.set(RANKS, values[2].data)
             .write();
         onFinished();
@@ -527,9 +533,8 @@ function reorderHorses() {
     //TODO po usunięciu konia mają się mergować miejsca
     //TODO blokowamie usuwania sędziego jeżeli jesst w jakiejś klasie
     //TODO blokowanie usuwania klasy jeżeli jest jakiś koń przypisany do niej
-    //TODO klasa ma pole "finished"
-    //TODO klasa ma W KLIENCIE pole finished
-    //TODO klasa w generatorze ma pole finished = false
+    //TODO PRZENIES Z HEROKU NA AWS !!
+    //todo niech będzie można połączyć się po lokalce
 }
 
 function setupSockets() {
