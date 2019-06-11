@@ -1,9 +1,9 @@
 import {connectToDb} from "./data/MongoManager";
 
-const horses = require('./routes/api/horses');
+const horses = require('./routes/api/horse/horses');
 const judges = require('./routes/api/judges');
 const ranks = require('./routes/api/ranks');
-const authentication = require('./routes/api/authentication');
+const authentication = require('./routes/api/authentication/authentication');
 
 const express = require('express');
 const cors = require('cors');

@@ -1,4 +1,5 @@
 export const NOT_FOUND = {msg: "VALUE WAS NOT FOUND"};
+export const RANK_NOT_FOUND = {msg: "RANK WAS NOT FOUND"};
 export const DUPLICATED_NUMBERS = {msg: "NUMBERS CANNOT BE DUPLICATED!"};
 export const GAP_BETWEEN_NUMBERS = {msg: "NUMBERS CANNOT HAVE GAPS BETWEEN THEM!"};
 export const INVALID_HORSES_ID = {msg: "HORSES IDS ARE INVALID!"};

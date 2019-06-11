@@ -28,7 +28,8 @@ export async function connectToDb() {
         MONGO_DB
     } = process.env;
     client = await mongoose.connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}/${MONGO_DB}`, {
-        useNewUrlParser: true
+        useNewUrlParser: true,
+        useFindAndModify: false
     });
 
     HorseModel = client.model('Horse', horseSchema);
