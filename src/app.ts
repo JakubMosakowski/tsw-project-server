@@ -2,9 +2,9 @@ import {connectToDb, HorseModel, JudgeModel, RankModel} from "./data/MongoManage
 import {API} from "./API";
 import * as mongoose from "mongoose";
 
-const horses = require('./routes/api/horse/horses');
-const judges = require('./routes/api/judge/judges');
-const ranks = require('./routes/api/rank/ranks');
+const horses = require('./routes/api/horse/horseController');
+const judges = require('./routes/api/judge/judgeController');
+const ranks = require('./routes/api/rank/rankController');
 const authentication = require('./routes/api/authentication/authentication');
 
 const express = require('express');
@@ -19,8 +19,8 @@ app.use(cors());
 app.use(morgan('tiny'));
 
 app.use('/api/horses', horses);
-// app.use('api/judges', judges);
-// app.use('api/ranks', ranks);
+app.use('/api/judges', judges);
+// app.use('/api/ranks', ranks);
 // app.use('login', authentication);
 
 const socket = require('socket.io');

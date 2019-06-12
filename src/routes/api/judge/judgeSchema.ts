@@ -1,4 +1,5 @@
 import {Schema} from "mongoose";
+import {JudgeModel, RankModel} from "../../../data/MongoManager";
 
 export const judgeSchema = new Schema({
     name: String,
@@ -18,3 +19,17 @@ judgeSchema.set('toJSON', {
         delete ret._id
     }
 });
+
+judgeSchema.statics = {
+    async all() {
+        return await JudgeModel.find({})
+    },
+
+    async checkIfUsed(id): Promise<Boolean> {
+        const ranks = await RankModel.all();
+        return !ranks.some(rank => {
+            console.log(rank.committee.filter(item => (item.id === id)));
+            return rank.committee.filter(item => (item.id === id)).length > 0;
+        })
+    }
+};

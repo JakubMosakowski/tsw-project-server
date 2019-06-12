@@ -2,6 +2,7 @@ export const NOT_FOUND = {msg: "VALUE WAS NOT FOUND"};
 export const RANK_NOT_FOUND = {msg: "RANK WAS NOT FOUND"};
 export const JUDGE_NOT_FOUND = {msg: "JUDGE WAS NOT FOUND"};
 export const HORSE_NOT_FOUND = {msg: "HORSE WAS NOT FOUND"};
+export const JUDGE_IS_USED = {msg: "YOU CANNOT REMOVE JUDGE THAT IS IN COMMITTEE"};
 
 
 export const WRONG_SIZE_OF_LIST = {msg: "WRONG SIZE OF LIST"};

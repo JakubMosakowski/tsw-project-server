@@ -97,6 +97,7 @@ export const horsePostValidator = horseValidator.concat([
 ]);
 
 export const horsePutValidator = horseValidator.concat([
+    check('id').custom(async val => (await HorseModel.findById(val)) !== null).withMessage(HORSE_NOT_FOUND),
     validateNotesLength(),
     validateNoteNumber('notes.*.horseType'),
     validateNoteNumber('notes.*.head'),

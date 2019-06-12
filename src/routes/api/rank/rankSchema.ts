@@ -1,6 +1,6 @@
 import mongoose = require('mongoose');
 
-const ObjectId = mongoose.Schema.Types.ObjectId;
+export const ObjectId = mongoose.Schema.Types.ObjectId;
 import {Schema} from "mongoose";
 import {RankModel} from "../../../data/MongoManager";
 import {RANK_NOT_FOUND} from "../../../models/errorMessages";

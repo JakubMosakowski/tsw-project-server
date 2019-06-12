@@ -4,7 +4,7 @@ import {
 } from "../../../models/errorMessages";
 import {io} from "../../../app";
 import {HorseModel} from "../../../data/MongoManager";
-import {horsePostValidator, horsePutValidator, horseRearrangeValidator} from "./horsesValidators";
+import {horsePostValidator, horsePutValidator, horseRearrangeValidator} from "./horseValidator";
 
 const {validationResult} = require('express-validator/check');
 
@@ -14,7 +14,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     const horses =
         await HorseModel.all();
-    res.send(horses)
+    res.json(horses)
 });
 
 router.post('/',
@@ -75,18 +75,19 @@ async function getFirstUnusedHorseNumber(): Promise<Number> {
     return Math.max(...numbers) + 1;
 }
 
-//todo ogarnij sędziów
-//TODO blokowamie usuwania sędziego jeżeli jesst w jakiejś klasie
 //todo ogarnij klasy
-//todo sprawdź wszystkie możliwe requesty dla judge
-//todo sprawdź wszystkie możliwe requesty dla rank
+//todo sprawdz post dla rank
+//todo sprawdz get dla rank
+//todo sprawdz put dla rank
 //TODO blokowanie usuwania klasy jeżeli jest jakiś koń przypisany do niej
-//todo logowanie
+
 
 //sprawdz reordeing method dla koni
 
+//todo logowanie
 //TODO heroku env variables przekaż
 //TODO Add basic auth
+
 //todo niech będzie można połączyć się po lokalce
 
 async function reorderHorses(number: number) {
@@ -94,7 +95,7 @@ async function reorderHorses(number: number) {
 }
 
 router.delete('/:id', async (req, res) => {
-    HorseModel.findByIdAndRemove(req.params.id, async function(e, item) { // doc here is actually err
+    HorseModel.findByIdAndRemove(req.params.id, async (e, item) => {
         if (e || !item) {
             return res.status(404).json(HORSE_NOT_FOUND);
         } else {

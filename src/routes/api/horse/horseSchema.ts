@@ -1,9 +1,7 @@
-import mongoose = require('mongoose');
-
-const ObjectId = mongoose.Schema.Types.ObjectId;
 import {Schema} from "mongoose";
 import {HorseModel} from "../../../data/MongoManager";
 import {HORSE_NOT_FOUND} from "../../../models/errorMessages";
+import {ObjectId} from "../rank/rankSchema";
 
 export const horseSchema = new Schema({
     name: String,
