@@ -1,15 +1,18 @@
-import {horseSchema} from "../schemas/horseSchema";
+import {horseSchema} from "../routes/api/horse/horseSchema";
 
 require('dotenv').config();
 const mongoose = require('mongoose');
 export let client: Mongoose;
 export let HorseModel;
+export let JudgeModel;
 export let RankModel;
 
 import {
     cleanEnv, str,
 } from 'envalid';
 import { Mongoose} from "mongoose";
+import {judgeSchema} from "../routes/api/judge/judgeSchema";
+import {rankSchema} from "../routes/api/rank/rankSchema";
 
 function validateEnv() {
     cleanEnv(process.env, {
@@ -33,5 +36,6 @@ export async function connectToDb() {
     });
 
     HorseModel = client.model('Horse', horseSchema);
-    RankModel = client.model('Horse', horseSchema);
+    JudgeModel = client.model('Judge', judgeSchema);
+    RankModel = client.model('Rank', rankSchema);
 }

@@ -26,7 +26,7 @@ export interface Lineage {
 }
 
 export interface Notes {
-    type: number;
+    horseType: number;
     head: number;
     log: number;
     legs: number;

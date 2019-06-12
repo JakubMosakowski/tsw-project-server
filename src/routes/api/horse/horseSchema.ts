@@ -1,16 +1,15 @@
+import mongoose = require('mongoose');
+
+const ObjectId = mongoose.Schema.Types.ObjectId;
 import {Schema} from "mongoose";
+import {HorseModel} from "../../../data/MongoManager";
+import {HORSE_NOT_FOUND} from "../../../models/errorMessages";
 
 export const horseSchema = new Schema({
     name: String,
     country: String,
     number: Number,
-    rank: {
-        number: Number,
-        category: String,
-        committee: [Number],
-        finished: Boolean,
-        _id: false
-    },
+    rank: {type: ObjectId, ref: 'Rank'},
     yearOfBirth: Number,
     color: String,
     sex: String,
@@ -42,19 +41,13 @@ export const horseSchema = new Schema({
         }
     },
     notes: [{
-        type: Number,
+        horseType: Number,
         head: Number,
         log: Number,
         legs: Number,
         movement: Number,
         _id: false
     }]
-}, {
-    writeConcern: {
-        w: 'majority',
-        j: true,
-        wtimeout: 1000
-    },
 });
 
 horseSchema.set('toJSON', {
@@ -64,3 +57,24 @@ horseSchema.set('toJSON', {
         delete ret._id
     }
 });
+
+horseSchema.statics = {
+    async isExistingHorse(id) {
+        return await this.findById(id)
+            .then(result => {
+                if (!result) throw new Error(HORSE_NOT_FOUND.msg)
+            })
+    },
+
+    async all() {
+        return await HorseModel.find({})
+    }
+};
+
+horseSchema.pre('findOne', autoPopulateRank);
+horseSchema.pre('find', autoPopulateRank);
+
+function autoPopulateRank(next) {
+    this.populate('rank');
+    next()
+}
