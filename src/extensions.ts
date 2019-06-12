@@ -1,22 +1,19 @@
 
-export function getFirstMissingValueFromArray(numbers: number[]): number {
-    numbers.sort();
-    let returnValue = numbers.length + 1;
-    numbers.forEach((value, index) => {
-        if (value != index + 1) {
-            returnValue = index + 1
+
+export function checkUniqueValues(val: any[]): number {
+    let uniqueValues = [];
+    val.forEach((item) => {
+        if (!uniqueValues.includes(item)) {
+            uniqueValues.push(item)
         }
     });
-    return returnValue;
+
+    return uniqueValues.length
 }
 
-export function isInRange(array: Array<number>, start: number, end: number, step: number): boolean {
-    let isInRange = true;
-    array.forEach(value => {
-        if (!(value >= start && value <= end && value % step == 0)) {
-            isInRange = false;
-            return false;
-        }
-    });
-    return isInRange
-}
+export const firstUnusedInteger = (numbers: number[]) => {
+    if (numbers.length == 0) {
+        numbers.push(0)
+    }
+    return Math.max(...numbers) + 1;
+};

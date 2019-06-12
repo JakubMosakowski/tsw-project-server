@@ -1,6 +1,7 @@
 import {connectToDb, HorseModel, JudgeModel, RankModel} from "./data/MongoManager";
 import {API} from "./API";
 import * as mongoose from "mongoose";
+import {HORSES, JUDGES, RANKS} from "./models/tableNames";
 
 const horses = require('./routes/api/horse/horseController');
 const judges = require('./routes/api/judge/judgeController');
@@ -20,7 +21,7 @@ app.use(morgan('tiny'));
 
 app.use('/api/horses', horses);
 app.use('/api/judges', judges);
-// app.use('/api/ranks', ranks);
+app.use('/api/ranks', ranks);
 // app.use('login', authentication);
 
 const socket = require('socket.io');
@@ -33,6 +34,7 @@ connectToDb().then(() => {
         console.log("Express server listening on port " + port);
     });
     io = socket.listen(server);
+    setupSockets();
 }).catch(e => console.log(e));
 
 app.post('/reloadDb', async (req, res) => {
@@ -47,6 +49,14 @@ app.post('/reloadDb', async (req, res) => {
     );
 });
 
+function setupSockets() {
+    io.on('connection', () => {
+        io.emit(JUDGES, JudgeModel.all());
+        io.emit(HORSES, HorseModel.all());
+        io.emit(RANKS, RankModel.all());
+    });
+}
+
 function fillDb(onFinished, onError) {
     Promise.all([API.getJudges(), API.getHorses(), API.getRanks()]).then(async values => {
         await JudgeModel.insertMany(values[0].data).catch(e => console.log(e));
@@ -60,56 +70,4 @@ function fillDb(onFinished, onError) {
     });
 }
 
-// setupDb();
-// setupHeaders();
-// setupGetters();
-// setupPosts();
-// setupUpdates();
-// setupDeletes();
-// setupSockets();
-
-// function setupDb() {
-//     db.defaults({
-//         horses: [],
-//         judges: [],
-//         ranks: [],
-//         users: [
-//             {
-//                 name: "admin",
-//                 password: bcrypt.hashSync("12345", 8)
-//             }
-//         ]
-//     }).write();
-// }
-
-// function getTable(tableName: string) {
-//     return db.get(tableName).value();
-// }
-//
-// function getValueFromTable(tableName: string, id: string) {
-//     return db.get(tableName)
-//         .find({id: id}).value();
-// }
-
-//
-// function removeFromDb(dbName: string, id: string): boolean {
-//     let toRemove = db.get(dbName).find({id: id}).value();
-//     if (toRemove) {
-//         db.get(dbName)
-//             .remove(toRemove)
-//             .write();
-//     }
-//
-//     return toRemove != null;
-// }
-
-//
-//
-// function setupSockets() {
-//     io.on('connection', () => {
-//         io.emit(JUDGES, getTable(JUDGES));
-//         io.emit(HORSES, getTable(HORSES));
-//         io.emit(RANKS, getTable(RANKS));
-//     });
-// }
 

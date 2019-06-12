@@ -39,6 +39,7 @@ export const horseSchema = new Schema({
         }
     },
     notes: [{
+        judge: {type: ObjectId, ref: 'Judge'},
         horseType: Number,
         head: Number,
         log: Number,
@@ -63,16 +64,32 @@ horseSchema.statics = {
                 if (!result) throw new Error(HORSE_NOT_FOUND.msg)
             })
     },
-
+    async rankChanged(id, rankId): Promise<Boolean> {
+        return (await HorseModel.findById(id)).rank.id == rankId;
+    },
+    async notesChanged(id, notes): Promise<Boolean> {
+        const notesFromDb = (await HorseModel.findById(id)).notes.map(item => {
+            return {
+                judge: item.judge.id,
+                horseType: item.horseType,
+                head: item.head,
+                log: item.log,
+                legs: item.legs,
+                movement: item.movement,
+            }
+        });
+        return notesFromDb == notes;
+    },
     async all() {
         return await HorseModel.find({})
     }
 };
 
-horseSchema.pre('findOne', autoPopulateRank);
-horseSchema.pre('find', autoPopulateRank);
+horseSchema.pre('findOne', autoPopulate);
+horseSchema.pre('find', autoPopulate);
 
-function autoPopulateRank(next) {
+function autoPopulate(next) {
     this.populate('rank');
+    this.populate('notes.judge');
     next()
 }

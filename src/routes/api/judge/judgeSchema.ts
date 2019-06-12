@@ -28,7 +28,6 @@ judgeSchema.statics = {
     async checkIfUsed(id): Promise<Boolean> {
         const ranks = await RankModel.all();
         return !ranks.some(rank => {
-            console.log(rank.committee.filter(item => (item.id === id)));
             return rank.committee.filter(item => (item.id === id)).length > 0;
         })
     }

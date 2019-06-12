@@ -3,8 +3,10 @@ import {
     HORSE_NOT_FOUND
 } from "../../../models/errorMessages";
 import {io} from "../../../app";
-import {HorseModel} from "../../../data/MongoManager";
+import {HorseModel, RankModel} from "../../../data/MongoManager";
 import {horsePostValidator, horsePutValidator, horseRearrangeValidator} from "./horseValidator";
+import {firstUnusedInteger} from "../../../extensions";
+import {Notes} from "../../../models/horse";
 
 const {validationResult} = require('express-validator/check');
 
@@ -27,7 +29,7 @@ router.post('/',
 
         let horse = req.body;
         horse.number = await getFirstUnusedHorseNumber();
-        horse.notes = [];
+        horse.notes = await fillWithZeros(horse.rank);
         horse = await HorseModel.create(horse);
 
         const horses = await HorseModel.all();
@@ -49,7 +51,7 @@ router.put('/:id', horsePutValidator, async (req, res) => {
     const horses = await HorseModel.all();
 
     io.emit(HORSES, horses);
-    res.json(horse);
+    res.json();
 });
 
 router.post('/rearrangeHorseNumbers', horseRearrangeValidator, async (req, res) => {
@@ -64,24 +66,32 @@ router.post('/rearrangeHorseNumbers', horseRearrangeValidator, async (req, res) 
     const horses = await HorseModel.all();
 
     io.emit(HORSES, horses);
-    res.json(req.body);
+    res.json();
 });
 
-async function getFirstUnusedHorseNumber(): Promise<Number> {
-    let numbers = (await HorseModel.find()).map(item => item.number);
-    if (numbers.length == 0) {
-        numbers.push(0)
-    }
-    return Math.max(...numbers) + 1;
+async function fillWithZeros(id): Promise<[Notes]> {
+    const committee = (await RankModel.findById(id)).committee;
+
+    return committee.map(item => {
+        return {
+            judge: item.id,
+            horseType: 0,
+            head: 0,
+            log: 0,
+            legs: 0,
+            movement: 0
+        }
+    })
 }
 
-//todo ogarnij klasy
-//todo sprawdz post dla rank
-//todo sprawdz get dla rank
-//todo sprawdz put dla rank
-//TODO blokowanie usuwania klasy jeżeli jest jakiś koń przypisany do niej
+async function getFirstUnusedHorseNumber(): Promise<Number> {
+    return firstUnusedInteger((await HorseModel.find()).map(horse => horse.number));
+}
 
-
+//todo sprawdz post dla horse
+//todo sprawdz get dla horse
+//todo sprawdz put dla horse
+//todo sprawdz delete dla horse
 //sprawdz reordeing method dla koni
 
 //todo logowanie

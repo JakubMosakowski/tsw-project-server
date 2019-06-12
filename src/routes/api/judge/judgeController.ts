@@ -14,6 +14,11 @@ router.get('/', async (req, res) => {
     res.json(judges)
 });
 
+//todo sprawdz post dla judge
+//todo sprawdz get dla judge
+//todo sprawdz put dla judge
+//todo sprawdz delete dla judge
+
 router.post('/',
     judgePostValidator,
     async (req, res) => {
@@ -42,7 +47,7 @@ router.put('/:id', judgePutValidator, async (req, res) => {
     const judges = await JudgeModel.all();
 
     io.emit(JUDGES, judges);
-    res.json(judge);
+    res.json();
 });
 
 router.delete('/:id', judgeDeleteValidator, async (req, res) => {

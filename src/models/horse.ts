@@ -1,5 +1,6 @@
 import {Human} from "./human";
 import {Rank} from "./rank";
+import {Judge} from "./judge";
 
 export interface RacingHorse extends Horse{
     id: string;
@@ -26,6 +27,7 @@ export interface Lineage {
 }
 
 export interface Notes {
+    judge: Judge;
     horseType: number;
     head: number;
     log: number;
