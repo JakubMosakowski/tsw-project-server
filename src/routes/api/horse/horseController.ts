@@ -46,6 +46,7 @@ router.put('/:id', horsePutValidator, async (req, res) => {
 
     let horse = req.body;
     horse.id = req.params.id;
+    await HorseModel.findByIdAndUpdate(horse.id, horse);
 
     const horses = await HorseModel.all();
 
@@ -85,13 +86,10 @@ async function fillWithZeros(id): Promise<[Notes]> {
 }
 
 async function getFirstUnusedHorseNumber(): Promise<Number> {
-    return firstUnusedInteger((await HorseModel.find()).map(horse => horse.number));
+    const array = (await HorseModel.find()).map(horse => horse.number);
+    return firstUnusedInteger(array);
 }
 
-//todo sprawdz post dla horse
-//todo sprawdz get dla horse
-//todo sprawdz put dla horse
-//todo sprawdz delete dla horse
 //todo sprawdz reordeing method dla koni
 
 //todo logowanie
