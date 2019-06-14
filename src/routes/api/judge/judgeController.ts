@@ -14,11 +14,6 @@ router.get('/', async (req, res) => {
     res.json(judges)
 });
 
-//todo sprawdz post dla judge
-//todo sprawdz get dla judge
-//todo sprawdz put dla judge
-//todo sprawdz delete dla judge
-
 router.post('/',
     judgePostValidator,
     async (req, res) => {
