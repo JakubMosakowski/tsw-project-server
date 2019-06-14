@@ -25,5 +25,3 @@ export class API {
     }
 }
 export const GET = "get";
-
-//TODO rem

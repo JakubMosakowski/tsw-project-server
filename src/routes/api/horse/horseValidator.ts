@@ -91,8 +91,6 @@ const validateRankEnded =
     };
 
 const horseValidator = [
-    //todo jak rank skończona to nie ma edytowania not
-    //todo nie ma dodawania/zmieniania rank w koniu po zakonczeniu rank
     validateRankEnded(),
     sanitizedString('name'),
     sanitizedString('country'),

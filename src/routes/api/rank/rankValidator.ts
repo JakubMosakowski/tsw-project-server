@@ -1,5 +1,6 @@
 import {body, check, ValidationChain} from "express-validator/check";
 import {
+    DUPLICATED_JUDGES,
     DUPLICATED_NUMBERS,
     INCORRECT_ID,
     JUDGE_NOT_FOUND,
@@ -13,16 +14,19 @@ import {checkUniqueValues} from "../../../extensions";
 
 export const rankDeleteValidator = [
     check('id')
-        .custom(async val => await HorseModel.find({rank: {id: val}}))
+        .isMongoId()
+        .withMessage(INCORRECT_ID)
+        .custom(async val => (await HorseModel.find({rank: val}).catch(e => console.log(e))).length == 0)
         .withMessage(RANK_IS_USED)
 ];
 
-const checkCommittee =
+const checkJudgesInCommittee =
     (): ValidationChain => {
-
         return check('committee')
             .isArray()
-            .custom(async val => checkUniqueValues(val) && val.every(async id => await JudgeModel.findById(id).catch()))
+            .custom(async val => checkUniqueValues(val) == val.length)
+            .withMessage(DUPLICATED_JUDGES)
+            .custom(async val => val.every(async id => await JudgeModel.findById(id).catch()))
             .withMessage(JUDGE_NOT_FOUND)
     };
 
@@ -31,7 +35,8 @@ const rankValidator = [
     check('committee.*')
         .isMongoId()
         .withMessage(INCORRECT_ID),
-    checkCommittee()];
+    checkJudgesInCommittee(),
+];
 
 export const rankPostValidator = rankValidator.concat([
     body()
@@ -44,7 +49,12 @@ export const rankPutValidator = rankValidator.concat([
         .custom(async val => (await RankModel.findById(val)) !== null)
         .withMessage(RANK_NOT_FOUND),
     check('number')
-        .custom(async val => (await RankModel.all()).map(rank => rank.number).includes(val))
+        .custom(async (val, {req}) => {
+            if (val == (await RankModel.findById(req.params.id)).number)
+                return true;
+
+            return !(await RankModel.all()).map(rank => rank.number).includes(val)
+        })
         .withMessage(DUPLICATED_NUMBERS),
     check('ended').isBoolean(),
     body()

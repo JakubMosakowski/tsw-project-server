@@ -46,7 +46,6 @@ router.put('/:id', horsePutValidator, async (req, res) => {
 
     let horse = req.body;
     horse.id = req.params.id;
-    horse = await HorseModel.findByIdAndUpdate(horse.id, horse);
 
     const horses = await HorseModel.all();
 
@@ -60,9 +59,10 @@ router.post('/rearrangeHorseNumbers', horseRearrangeValidator, async (req, res) 
         return res.status(422).json({errors: errors.array()});
     }
 
-    req.body.horseNumberList.forEach((item) => {
-        HorseModel.findByIdAndUpdate(item.id, {number: item.newNumber});
-    });
+    for (const item of req.body.horseNumberList){
+        await HorseModel.findByIdAndUpdate(item.id, {number: item.newNumber});
+    }
+
     const horses = await HorseModel.all();
 
     io.emit(HORSES, horses);
@@ -92,7 +92,7 @@ async function getFirstUnusedHorseNumber(): Promise<Number> {
 //todo sprawdz get dla horse
 //todo sprawdz put dla horse
 //todo sprawdz delete dla horse
-//sprawdz reordeing method dla koni
+//todo sprawdz reordeing method dla koni
 
 //todo logowanie
 //TODO heroku env variables przekaż

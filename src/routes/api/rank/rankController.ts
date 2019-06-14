@@ -1,9 +1,10 @@
-import {RankModel} from "../../../data/MongoManager";
+import {HorseModel, RankModel} from "../../../data/MongoManager";
 import {io} from "../../../app";
 import {RANKS} from "../../../models/tableNames";
 import {firstUnusedInteger} from "../../../extensions";
 import {rankDeleteValidator, rankPostValidator, rankPutValidator} from "./rankValidator";
 import {RANK_NOT_FOUND} from "../../../models/errorMessages";
+import {Rank} from "../../../models/rank";
 
 const {validationResult} = require('express-validator/check');
 const express = require('express');
@@ -14,13 +15,6 @@ router.get('/', async (req, res) => {
         await RankModel.all();
     res.json(ranks)
 });
-
-//todo ogarnij put
-//todo ogarnij delete
-//todo sprawdz post dla rank
-//todo sprawdz get dla rank
-//todo sprawdz put dla rank
-//todo sprawdz delete dla rank
 
 router.post('/',
     rankPostValidator,
@@ -49,17 +43,15 @@ router.put('/:id', rankPutValidator, async (req, res) => {
 
     let rank = req.body;
     rank.id = req.params.id;
-    const oldCommittee = (await RankModel.findById(rank.id)).committee;
+    const oldRank = (await RankModel.findById(rank.id));
 
     await RankModel.findByIdAndUpdate(rank.id, rank);
 
-//todo jak zmienią się sędziowe to każdemu koniu w klasie wyzeruj noty od tego sędziego
-    if (oldCommittee != req.body.committee) {
-        clearNotesFromEveryHorseInRank(oldCommittee, req.body.committee)
+    if (oldRank.committee.map(item => item.id) != req.body.committee) {
+        await clearNotesFromEveryHorseInRank(oldRank, req.body.committee)
     }
 
     const ranks = await RankModel.all();
-
     io.emit(RANKS, ranks);
     res.json();
 });
@@ -84,6 +76,22 @@ router.delete('/:id', rankDeleteValidator, async (req, res) => {
 
 async function getFirstUnusedRankNumber(): Promise<Number> {
     return firstUnusedInteger((await RankModel.find()).map(rank => rank.number));
+}
+
+async function clearNotesFromEveryHorseInRank(rank: Rank, committee: [string]) {
+    const oldCommittee = rank.committee.map(item => item.id);
+
+    for (const id of committee) {
+        if (!oldCommittee.includes(id)) {
+             await HorseModel.addNewJudgeToHorses(rank.id,id);
+        }
+    }
+
+    for (const id of oldCommittee) {
+        if (!committee.includes(id)) {
+            await HorseModel.removeJudgeFromHorses(rank.id,id)
+        }
+    }
 }
 
 module.exports = router;

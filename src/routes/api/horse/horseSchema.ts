@@ -2,6 +2,7 @@ import {Schema} from "mongoose";
 import {HorseModel} from "../../../data/MongoManager";
 import {HORSE_NOT_FOUND} from "../../../models/errorMessages";
 import {ObjectId} from "../rank/rankSchema";
+import {RacingHorse} from "../../../models/horse";
 
 export const horseSchema = new Schema({
     name: String,
@@ -79,6 +80,32 @@ horseSchema.statics = {
             }
         });
         return notesFromDb == notes;
+    },
+    async addNewJudgeToHorses(rankId: String, judgeId) {
+        const horses = await HorseModel.find({rank: rankId}) as [RacingHorse];
+
+        for (const item of horses) {
+            item.notes.push({
+                judge: judgeId,
+                horseType: 0,
+                head: 0,
+                log: 0,
+                legs: 0,
+                movement: 0
+            });
+
+            await HorseModel.findByIdAndUpdate(item.id, item)
+        }
+    },
+    async removeJudgeFromHorses(rankId: string, judgeId: string) {
+        const horses = await HorseModel.find({rank: rankId}) as [RacingHorse];
+
+        for (const item of horses) {
+            const index = item.notes.map(item => item.judge.id).indexOf(judgeId);
+            item.notes.splice(index, 1);
+
+            await HorseModel.findByIdAndUpdate(item.id, item)
+        }
     },
     async all() {
         return await HorseModel.find({})
