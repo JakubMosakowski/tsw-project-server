@@ -90,13 +90,9 @@ async function getFirstUnusedHorseNumber(): Promise<Number> {
     return firstUnusedInteger(array);
 }
 
-//todo sprawdz reordeing method dla koni
-
 //todo logowanie
-//TODO heroku env variables przekaż
-//TODO Add basic auth
-
-//todo niech będzie można połączyć się po lokalce
+//todo sprawdz reordeing method dla koni
+//todo niech będzie można połączyć się po lokalce z drugiego komputera
 
 async function reorderHorses(number: number) {
     return await HorseModel.updateMany({number: {$gt: number}}, {$inc: {number: -1}});

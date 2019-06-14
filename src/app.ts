@@ -28,6 +28,22 @@ const socket = require('socket.io');
 let server;
 export let io;
 const http = require('http');
+const basicAuth = require('express-basic-auth');
+require('dotenv').config();
+import {
+    cleanEnv, str,
+} from 'envalid';
+
+validateEnv();
+const {
+    BASIC_AUTH_PASS
+} = process.env;
+
+app.use(basicAuth({
+    users: { 'admin': BASIC_AUTH_PASS },
+    challenge: true,
+    unauthorizedResponse: getUnauthorizedResponse
+}));
 
 connectToDb().then(() => {
     server = http.createServer(app).listen(port, () => {
@@ -70,4 +86,14 @@ function fillDb(onFinished, onError) {
     });
 }
 
+function validateEnv() {
+    cleanEnv(process.env, {
+        BASIC_AUTH_PASS: str()
+    });
+}
 
+function getUnauthorizedResponse(req) {
+    return req.auth
+        ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
+        : 'No credentials provided'
+}
