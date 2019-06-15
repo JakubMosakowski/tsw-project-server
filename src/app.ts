@@ -1,46 +1,45 @@
-import {connectToDb, HorseModel, JudgeModel, RankModel} from "./data/MongoManager";
+import {connectToDb, HorseModel, JudgeModel, RankModel, UserModel} from "./data/MongoManager";
 import {API} from "./API";
 import * as mongoose from "mongoose";
 import {HORSES, JUDGES, RANKS} from "./models/tableNames";
+import {
+    cleanEnv, str,
+} from 'envalid';
 
 const horses = require('./routes/api/horse/horseController');
 const judges = require('./routes/api/judge/judgeController');
 const ranks = require('./routes/api/rank/rankController');
-const authentication = require('./routes/api/authentication/authentication');
+const auth = require('./routes/authentication/authController');
 
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const morgan = require('morgan');
 const port = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-app.use(cors());
-app.use(morgan('tiny'));
-
-app.use('/api/horses', horses);
-app.use('/api/judges', judges);
-app.use('/api/ranks', ranks);
-// app.use('login', authentication);
-
 const socket = require('socket.io');
-let server;
-export let io;
+const bcrypt = require('bcrypt');
 const http = require('http');
 const basicAuth = require('express-basic-auth');
-require('dotenv').config();
-import {
-    cleanEnv, str,
-} from 'envalid';
+let server;
+export let io;
 
+setupExpress();
+setupRoutes();
 validateEnv();
+
 const {
-    BASIC_AUTH_PASS
+    BASIC_AUTH_PASS,
+    ADMIN_LOG,
+    ADMIN_PASS
 } = process.env;
 
+const adminAccounts = [{
+    login: ADMIN_LOG,
+    password: bcrypt.hashSync(ADMIN_PASS, 8)
+}];
+
 app.use(basicAuth({
-    users: { 'admin': BASIC_AUTH_PASS },
+    users: {'admin': BASIC_AUTH_PASS},
     challenge: true,
     unauthorizedResponse: getUnauthorizedResponse
 }));
@@ -78,6 +77,7 @@ function fillDb(onFinished, onError) {
         await JudgeModel.insertMany(values[0].data).catch(e => console.log(e));
         await HorseModel.insertMany(values[1].data).catch(e => console.log(e));
         await RankModel.insertMany(values[2].data).catch(e => console.log(e));
+        await UserModel.insertMany(adminAccounts);
 
         onFinished();
     }).catch(err => {
@@ -88,8 +88,30 @@ function fillDb(onFinished, onError) {
 
 function validateEnv() {
     cleanEnv(process.env, {
-        BASIC_AUTH_PASS: str()
+        BASIC_AUTH_PASS: str(),
+        ADMIN_LOG: str(),
+        ADMIN_PASS: str(),
+        MONGO_PASSWORD: str(),
+        MONGO_PATH: str(),
+        MONGO_DB: str(),
+        MONGO_USER: str(),
+        JWT_KEY: str()
     });
+}
+
+function setupExpress() {
+    app.use(express.json());
+    app.use(express.urlencoded({extended: true}));
+    app.use(cors());
+    app.use(morgan('tiny'));
+    require('dotenv').config();
+}
+
+function setupRoutes() {
+    app.use('/api/horses', horses);
+    app.use('/api/judges', judges);
+    app.use('/api/ranks', ranks);
+    app.use('/login', auth);
 }
 
 function getUnauthorizedResponse(req) {

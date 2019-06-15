@@ -64,4 +64,3 @@ router.delete('/:id', judgeDeleteValidator, async (req, res) => {
 });
 
 module.exports = router;
-

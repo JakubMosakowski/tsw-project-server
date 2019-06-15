@@ -6,24 +6,14 @@ export let client: Mongoose;
 export let HorseModel;
 export let JudgeModel;
 export let RankModel;
+export let UserModel;
 
-import {
-    cleanEnv, str,
-} from 'envalid';
 import { Mongoose} from "mongoose";
 import {judgeSchema} from "../routes/api/judge/judgeSchema";
 import {rankSchema} from "../routes/api/rank/rankSchema";
-
-function validateEnv() {
-    cleanEnv(process.env, {
-        MONGO_PASSWORD: str(),
-        MONGO_PATH: str(),
-        MONGO_USER: str(),
-    });
-}
+import {userSchema} from "../routes/authentication/userSchema";
 
 export async function connectToDb() {
-    validateEnv();
     const {
         MONGO_USER,
         MONGO_PASSWORD,
@@ -38,4 +28,5 @@ export async function connectToDb() {
     HorseModel = client.model('Horse', horseSchema);
     JudgeModel = client.model('Judge', judgeSchema);
     RankModel = client.model('Rank', rankSchema);
+    UserModel = client.model('User', userSchema);
 }
