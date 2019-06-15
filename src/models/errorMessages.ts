@@ -15,4 +15,5 @@ export const NOTES_NOT_IN_RANGE = {msg: "NOTES SHOULD BE FROM 0 TO 20 WITH 0.5 S
 export const NOTES_WRONG = {msg: "EVERY JUDGE IN COMMITTEE HAS TO HAVE EXACTLY ONE SET OF NOTES"};
 export const RANK_IS_ENDED = {msg: "YOU CANNOT EDIT NOTES OF ENDED RANK!"};
 export const LOGIN_ERROR = {msg: "USER OR PASSWORD IS WRONG!"};
+export const TOKEN_FAILED = {msg: "Failed to authenticate token."};
 

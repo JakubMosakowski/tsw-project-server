@@ -9,7 +9,8 @@ import {
 const horses = require('./routes/api/horse/horseController');
 const judges = require('./routes/api/judge/judgeController');
 const ranks = require('./routes/api/rank/rankController');
-const auth = require('./routes/authentication/authController');
+const {router: auth} = require('./routes/authentication/authController');
+const {authorizeHeader }= require('./routes/authentication/authController');
 
 const express = require('express');
 const cors = require('cors');
@@ -19,7 +20,6 @@ const port = process.env.PORT || 3000;
 const socket = require('socket.io');
 const bcrypt = require('bcrypt');
 const http = require('http');
-const basicAuth = require('express-basic-auth');
 let server;
 export let io;
 
@@ -28,7 +28,6 @@ setupRoutes();
 validateEnv();
 
 const {
-    BASIC_AUTH_PASS,
     ADMIN_LOG,
     ADMIN_PASS
 } = process.env;
@@ -38,12 +37,6 @@ const adminAccounts = [{
     password: bcrypt.hashSync(ADMIN_PASS, 8)
 }];
 
-app.use(basicAuth({
-    users: {'admin': BASIC_AUTH_PASS},
-    challenge: true,
-    unauthorizedResponse: getUnauthorizedResponse
-}));
-
 connectToDb().then(() => {
     server = http.createServer(app).listen(port, () => {
         console.log("Express server listening on port " + port);
@@ -52,7 +45,7 @@ connectToDb().then(() => {
     setupSockets();
 }).catch(e => console.log(e));
 
-app.post('/reloadDb', async (req, res) => {
+app.post('/api/reloadDb', async (req, res) => {
     await mongoose.connection.db.dropDatabase().catch(e => console.log(e));
     fillDb(
         () => {
@@ -88,7 +81,6 @@ function fillDb(onFinished, onError) {
 
 function validateEnv() {
     cleanEnv(process.env, {
-        BASIC_AUTH_PASS: str(),
         ADMIN_LOG: str(),
         ADMIN_PASS: str(),
         MONGO_PASSWORD: str(),
@@ -100,9 +92,10 @@ function validateEnv() {
 }
 
 function setupExpress() {
+    app.use(cors())
+    app.use(/^\/api.*/, authorizeHeader);
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
-    app.use(cors());
     app.use(morgan('tiny'));
     require('dotenv').config();
 }
@@ -112,10 +105,4 @@ function setupRoutes() {
     app.use('/api/judges', judges);
     app.use('/api/ranks', ranks);
     app.use('/login', auth);
-}
-
-function getUnauthorizedResponse(req) {
-    return req.auth
-        ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
-        : 'No credentials provided'
 }
