@@ -90,9 +90,7 @@ async function getFirstUnusedHorseNumber(): Promise<Number> {
     return firstUnusedInteger(array);
 }
 
-//todo logowanie
 //todo sprawdz reordeing method dla koni
-//todo niech będzie można połączyć się po lokalce z drugiego komputera
 
 async function reorderHorses(number: number) {
     return await HorseModel.updateMany({number: {$gt: number}}, {$inc: {number: -1}});
@@ -101,7 +99,7 @@ async function reorderHorses(number: number) {
 router.delete('/:id', async (req, res) => {
     HorseModel.findByIdAndRemove(req.params.id, async (e, item) => {
         if (e || !item) {
-            return res.status(404).json(HORSE_NOT_FOUND);
+            return res.status(404).send({errors: [HORSE_NOT_FOUND]});
         } else {
             await reorderHorses(item.number);
             const horses = await HorseModel.all();

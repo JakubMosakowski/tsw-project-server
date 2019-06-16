@@ -1,19 +1,21 @@
-export const RANK_NOT_FOUND = {msg: "RANK WAS NOT FOUND"};
-export const JUDGE_NOT_FOUND = {msg: "JUDGE WAS NOT FOUND"};
-export const HORSE_NOT_FOUND = {msg: "HORSE WAS NOT FOUND"};
+export const RANK_NOT_FOUND = {msg: "Nie znaleziono takiej klasy."};
+export const JUDGE_NOT_FOUND = {msg: "Nie znaleziono takiego sędziego."};
+export const HORSE_NOT_FOUND = {msg: "Nie znaleziono takiego konia."};
 
-export const JUDGE_IS_USED = {msg: "YOU CANNOT REMOVE JUDGE THAT IS IN COMMITTEE"};
-export const RANK_IS_USED = {msg: "YOU CANNOT REMOVE RANK THAT HAS HORSE IN IT"};
+export const JUDGE_IS_USED = {msg: "Nie można usunąć sędziego który jest w komisji."};
+export const RANK_IS_USED = {msg: "Nie można usunąć klasy do której należą jakieś konie."};
 
-export const INCORRECT_ID = {msg: "THAT IS NOT CORRECT ID"};
-export const WRONG_SIZE_OF_LIST = {msg: "WRONG SIZE OF LIST"};
-export const DUPLICATED_NUMBERS = {msg: "NUMBERS CANNOT BE DUPLICATED!"};
-export const DUPLICATED_JUDGES = {msg: "JUDGES CANNOT BE DUPLICATED!"};
-export const GAP_BETWEEN_NUMBERS = {msg: "NUMBERS CANNOT HAVE GAPS BETWEEN THEM!"};
-export const TOO_MANY_PARAMETERS = {msg: "TOO MANY PARAMETERS PASSED"};
-export const NOTES_NOT_IN_RANGE = {msg: "NOTES SHOULD BE FROM 0 TO 20 WITH 0.5 STEP!"};
-export const NOTES_WRONG = {msg: "EVERY JUDGE IN COMMITTEE HAS TO HAVE EXACTLY ONE SET OF NOTES"};
-export const RANK_IS_ENDED = {msg: "YOU CANNOT EDIT NOTES OF ENDED RANK!"};
-export const LOGIN_ERROR = {msg: "USER OR PASSWORD IS WRONG!"};
+export const INCORRECT_ID = {msg: "Ten identyfikator jest niepoprawny."};
+export const WRONG_SIZE_OF_LIST = {msg: "Zła wielkość listy numerów."};
+export const DUPLICATED_NUMBERS = {msg: "Numery nie mogą się powtarzać."};
+export const DUPLICATED_JUDGES = {msg: "Sędziowie nie mogą się powtarzać"};
+export const GAP_BETWEEN_NUMBERS = {msg: "Numery nie mogą mieć przerw pomiędzy nimi."};
+export const TOO_MANY_PARAMETERS = {msg: "Przesłano zbyt wiele parametów."};
+export const NOTES_NOT_IN_RANGE = {msg: "Oceny powinny być z przedziału od 0 do 20, ze skokiem co 0.5."};
+export const NOTES_WRONG = {msg: "Każdy sędzia w komisji musi mieć dokładnie jedną parę ocen."};
+export const RANK_IS_ENDED = {msg: "Nie można edytować ocen zakończonych komisji"};
+export const LOGIN_ERROR = {msg: "Login lub hasło jestt niepoprawne."};
 export const TOKEN_FAILED = {msg: "Failed to authenticate token."};
+export const SOMETHING_WENT_WRONG = {msg: "Coś poszło nie tak."};
+
 

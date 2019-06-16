@@ -32,12 +32,12 @@ function authorizeHeader(req, res, next) {
     const token = req.headers['authorization'];
 
     if (!token) {
-        return res.status(403).send(TOKEN_FAILED);
+        return res.status(403).send({errors: [TOKEN_FAILED]});
     }
 
     jwt.verify(token.replace('Bearer ', ''), JWT_KEY, (err, decoded) => {
         if (err) {
-            return res.status(403).send(TOKEN_FAILED);
+            return res.status(403).send({errors: [TOKEN_FAILED]});
         }
         req.decoded = decoded;
         next();

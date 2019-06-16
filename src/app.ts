@@ -5,6 +5,7 @@ import {HORSES, JUDGES, RANKS} from "./models/tableNames";
 import {
     cleanEnv, str,
 } from 'envalid';
+import {SOMETHING_WENT_WRONG} from "./models/errorMessages";
 
 const horses = require('./routes/api/horse/horseController');
 const judges = require('./routes/api/judge/judgeController');
@@ -52,7 +53,7 @@ app.post('/api/reloadDb', async (req, res) => {
             res.status(200).send();
         },
         () => {
-            res.status(400).send();
+            return res.status(400).send({errors: [SOMETHING_WENT_WRONG]});
         }
     );
 });
@@ -92,7 +93,7 @@ function validateEnv() {
 }
 
 function setupExpress() {
-    app.use(cors())
+    app.use(cors());
     app.use(/^\/api.*/, authorizeHeader);
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
