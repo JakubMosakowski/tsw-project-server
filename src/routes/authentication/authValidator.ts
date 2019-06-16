@@ -3,7 +3,6 @@ import {LOGIN_ERROR, TOO_MANY_PARAMETERS} from "../../models/errorMessages";
 import {sanitizedString} from "../api/customSanitizers";
 import {UserModel} from "../../data/MongoManager";
 import {User} from "../../models/user";
-
 const bcrypt = require('bcrypt');
 
 const checkUser =

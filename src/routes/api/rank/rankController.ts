@@ -32,7 +32,7 @@ router.post('/',
         const ranks = await RankModel.all();
 
         io.emit(RANKS, ranks);
-        res.json(rank);
+        res.json(ranks.find(item => item.id == rank.id));
     });
 
 router.put('/:id', rankPutValidator, async (req, res) => {
@@ -53,7 +53,7 @@ router.put('/:id', rankPutValidator, async (req, res) => {
 
     const ranks = await RankModel.all();
     io.emit(RANKS, ranks);
-    res.json();
+    res.json(ranks.find(item => item.id == rank.id));
 });
 
 router.delete('/:id', rankDeleteValidator, async (req, res) => {

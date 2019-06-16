@@ -35,7 +35,7 @@ router.post('/',
         const horses = await HorseModel.all();
 
         io.emit(HORSES, horses);
-        res.json(horse);
+        res.json(horses.find(item => item.id == horse.id));
     });
 
 router.put('/:id', horsePutValidator, async (req, res) => {
@@ -51,7 +51,7 @@ router.put('/:id', horsePutValidator, async (req, res) => {
     const horses = await HorseModel.all();
 
     io.emit(HORSES, horses);
-    res.json();
+    res.json(horses.find(item => item.id == horse.id));
 });
 
 router.post('/rearrangeHorseNumbers', horseRearrangeValidator, async (req, res) => {
@@ -60,14 +60,14 @@ router.post('/rearrangeHorseNumbers', horseRearrangeValidator, async (req, res) 
         return res.status(422).json({errors: errors.array()});
     }
 
-    for (const item of req.body.horseNumberList){
+    for (const item of req.body.horseNumberList) {
         await HorseModel.findByIdAndUpdate(item.id, {number: item.newNumber});
     }
 
     const horses = await HorseModel.all();
 
     io.emit(HORSES, horses);
-    res.json();
+    res.json(horses);
 });
 
 async function fillWithZeros(id): Promise<[Notes]> {
