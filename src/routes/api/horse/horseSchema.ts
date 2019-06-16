@@ -62,7 +62,7 @@ horseSchema.statics = {
     async isExistingHorse(id) {
         return await this.findById(id)
             .then(result => {
-                if (!result) throw new Error(HORSE_NOT_FOUND.msg)
+                if (!result) throw new Error(HORSE_NOT_FOUND)
             })
     },
     async rankChanged(id, rankId): Promise<Boolean> {

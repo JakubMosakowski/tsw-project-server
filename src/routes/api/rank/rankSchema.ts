@@ -26,7 +26,7 @@ rankSchema.statics = {
     async isExistingRank(id) {
         return await this.findById(id)
             .then(result => {
-                if (!result) throw new Error(RANK_NOT_FOUND.msg)
+                if (!result) throw new Error(RANK_NOT_FOUND)
             })
     },
 

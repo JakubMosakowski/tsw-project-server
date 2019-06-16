@@ -17,7 +17,7 @@ const checkUser =
             })
             .withMessage({
                 success: false,
-                message: LOGIN_ERROR.msg,
+                message: LOGIN_ERROR,
                 token: null
             })
     };
