@@ -44,6 +44,7 @@ connectToDb().then(() => {
         console.log("Express server listening on port " + port);
     });
     io = socket.listen(server);
+    io.set('origins', '*:*');
     io.on('connect', onConnect);
 }).catch(e => console.log(e));
 
