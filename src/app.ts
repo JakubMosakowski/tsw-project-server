@@ -12,7 +12,7 @@ const horses = require('./routes/api/horse/horseController');
 const judges = require('./routes/api/judge/judgeController');
 const ranks = require('./routes/api/rank/rankController');
 const {router: auth} = require('./routes/authentication/authController');
-const {authorizeHeader }= require('./routes/authentication/authController');
+const {authorizeHeader} = require('./routes/authentication/authController');
 
 const express = require('express');
 const cors = require('cors');
@@ -44,7 +44,7 @@ connectToDb().then(() => {
         console.log("Express server listening on port " + port);
     });
     io = socket.listen(server);
-    setupSockets();
+    io.on('connect', onConnect);
 }).catch(e => console.log(e));
 
 app.post('/api/reloadDb', async (req, res) => {
@@ -59,11 +59,13 @@ app.post('/api/reloadDb', async (req, res) => {
     );
 });
 
-function setupSockets() {
+function onConnect(socket) {
     io.on('connection', () => {
-        io.emit(JUDGES, JudgeModel.all());
-        io.emit(HORSES, HorseModel.all());
-        io.emit(RANKS, RankModel.all());
+        Promise.all([JudgeModel.all(), HorseModel.all(), RankModel.all()]).then(values => {
+            socket.emit(JUDGES, values[0]);
+            socket.emit(HORSES, values[1]);
+            socket.emit(RANKS, values[2]);
+        })
     });
 }
 
