@@ -99,7 +99,7 @@ async function reorderHorses(number: number) {
 router.delete('/:id', async (req, res) => {
     HorseModel.findByIdAndRemove(req.params.id, async (e, item) => {
         if (e || !item) {
-            return res.status(404).send({errors: [HORSE_NOT_FOUND]});
+            return res.status(404).send({errors: [new APIError(HORSE_NOT_FOUND)]});
         } else {
             await reorderHorses(item.number);
             const horses = await HorseModel.all();

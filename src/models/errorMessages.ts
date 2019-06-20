@@ -15,5 +15,5 @@ export const NOTES_NOT_IN_RANGE = "Oceny powinny być z przedziału od 0 do 20, 
 export const NOTES_WRONG = "Każdy sędzia w komisji musi mieć dokładnie jedną parę ocen.";
 export const RANK_IS_ENDED = "Nie można edytować ocen zakończonych komisji";
 export const LOGIN_ERROR = "Login lub hasło jest niepoprawne.";
-export const TOKEN_FAILED = "Failed to authenticate token.";
+export const TOKEN_FAILED = "Sprawdzenie tokenu się nie powiodło.";
 export const SOMETHING_WENT_WRONG = "Coś poszło nie tak.";

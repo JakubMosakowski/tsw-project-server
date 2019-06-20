@@ -53,7 +53,7 @@ app.post('/api/reloadDb', async (req, res) => {
             res.status(200).send();
         },
         () => {
-            return res.status(400).send({errors: [SOMETHING_WENT_WRONG]});
+            return res.status(400).send({errors: [new APIError(SOMETHING_WENT_WRONG)]});
         }
     );
 });
@@ -105,5 +105,5 @@ function setupRoutes() {
     app.use('/api/horses', horses);
     app.use('/api/judges', judges);
     app.use('/api/ranks', ranks);
-    app.use('/login', auth);
+    app.use('/auth', auth);
 }

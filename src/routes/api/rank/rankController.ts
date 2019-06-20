@@ -64,7 +64,7 @@ router.delete('/:id', rankDeleteValidator, async (req, res) => {
 
     RankModel.findByIdAndRemove(req.params.id, async (e, item) => {
         if (e || !item) {
-            return res.status(404).send({errors: [RANK_NOT_FOUND]});
+            return res.status(404).send({errors: [new APIError(RANK_NOT_FOUND)]});
         } else {
             const ranks = await RankModel.all();
 

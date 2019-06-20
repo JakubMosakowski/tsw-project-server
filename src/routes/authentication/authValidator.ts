@@ -14,11 +14,7 @@ const checkUser =
                 if (!user) return false;
                 return bcrypt.compareSync(val.password, user.password)
             })
-            .withMessage({
-                success: false,
-                message: LOGIN_ERROR,
-                token: null
-            })
+            .withMessage(LOGIN_ERROR)
     };
 
 export const authValidator = [

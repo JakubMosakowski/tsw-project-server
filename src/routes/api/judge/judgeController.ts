@@ -53,7 +53,7 @@ router.delete('/:id', judgeDeleteValidator, async (req, res) => {
 
     JudgeModel.findByIdAndRemove(req.params.id, async (e, item) => {
         if (e || !item) {
-            return res.status(404).send({errors: [JUDGE_NOT_FOUND]});
+            return res.status(404).send({errors: [new APIError(JUDGE_NOT_FOUND)]});
         } else {
             const judges = await JudgeModel.all();
 
