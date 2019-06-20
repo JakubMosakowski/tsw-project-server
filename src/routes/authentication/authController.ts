@@ -3,6 +3,7 @@ import {authValidator} from "./authValidator";
 import {validationResult} from "express-validator/check";
 import {TOKEN_FAILED} from "../../models/errorMessages";
 import {User} from "../../models/user";
+import {APIError} from "../../models/APIError";
 
 const jwt = require('jsonwebtoken');
 const express = require('express');

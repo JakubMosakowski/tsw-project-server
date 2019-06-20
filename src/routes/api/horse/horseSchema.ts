@@ -39,6 +39,7 @@ export const horseSchema = new Schema({
             _id: false
         }
     },
+    arbitratorValue: Number,
     notes: [{
         judge: {type: ObjectId, ref: 'Judge'},
         horseType: Number,

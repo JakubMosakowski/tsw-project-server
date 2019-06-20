@@ -16,4 +16,6 @@ export const NOTES_WRONG = "Każdy sędzia w komisji musi mieć dokładnie jedn�
 export const RANK_IS_ENDED = "Nie można edytować ocen zakończonych komisji";
 export const LOGIN_ERROR = "Login lub hasło jest niepoprawne.";
 export const TOKEN_FAILED = "Sprawdzenie tokenu się nie powiodło.";
+export const ARBITRATOR_VALUE_WRONG = "Rozjemca może dać jedynie liczby naturalne.";
+
 export const SOMETHING_WENT_WRONG = "Coś poszło nie tak.";

@@ -7,6 +7,7 @@ import {HorseModel, RankModel} from "../../../data/MongoManager";
 import {horsePostValidator, horsePutValidator, horseRearrangeValidator} from "./horseValidator";
 import {firstUnusedInteger} from "../../../extensions";
 import {Notes} from "../../../models/horse";
+import {APIError} from "../../../models/APIError";
 
 const {validationResult} = require('express-validator/check');
 
@@ -29,6 +30,7 @@ router.post('/',
 
         let horse = req.body;
         horse.number = await getFirstUnusedHorseNumber();
+        horse.arbitratorValue = 0;
         horse.notes = await fillWithZeros(horse.rank);
         horse = await HorseModel.create(horse);
 

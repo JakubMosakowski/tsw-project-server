@@ -5,6 +5,7 @@ import {firstUnusedInteger} from "../../../extensions";
 import {rankDeleteValidator, rankPostValidator, rankPutValidator} from "./rankValidator";
 import {RANK_NOT_FOUND} from "../../../models/errorMessages";
 import {Rank} from "../../../models/rank";
+import {APIError} from "../../../models/APIError";
 
 const {validationResult} = require('express-validator/check');
 const express = require('express');

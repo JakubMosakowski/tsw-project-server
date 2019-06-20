@@ -6,6 +6,7 @@ import {
     cleanEnv, str,
 } from 'envalid';
 import {SOMETHING_WENT_WRONG} from "./models/errorMessages";
+import {APIError} from "./models/APIError";
 
 const horses = require('./routes/api/horse/horseController');
 const judges = require('./routes/api/judge/judgeController');

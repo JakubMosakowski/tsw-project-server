@@ -1,13 +1,14 @@
 import {body, check, ValidationChain} from "express-validator/check";
 import {HorseModel, RankModel} from "../../../data/MongoManager";
 import {
+    ARBITRATOR_VALUE_WRONG,
     DUPLICATED_NUMBERS, GAP_BETWEEN_NUMBERS,
     HORSE_NOT_FOUND, NOTES_NOT_IN_RANGE, NOTES_WRONG, RANK_IS_ENDED,
     RANK_NOT_FOUND, TOO_MANY_PARAMETERS, WRONG_SIZE_OF_LIST
 } from "../../../models/errorMessages";
 import {sanitizedString} from "../customSanitizers";
 import {checkUniqueValues} from "../../../extensions";
-
+const MAX_PUT_PARAMS = 11;
 const isExistingRank =
     (): ValidationChain => {
         return sanitizedString('rank')
@@ -123,13 +124,16 @@ export const horsePutValidator = horseValidator.concat([
         .custom(async val => (await HorseModel.findById(val)) !== null)
         .withMessage(HORSE_NOT_FOUND),
     validateNotesIds(),
+    check('arbitratorValue')
+        .isInt()
+        .custom(val => val >= 0).withMessage(ARBITRATOR_VALUE_WRONG),
     validateNoteNumber('notes.*.horseType'),
     validateNoteNumber('notes.*.head'),
     validateNoteNumber('notes.*.log'),
     validateNoteNumber('notes.*.legs'),
     validateNoteNumber('notes.*.movement'),
     body()
-        .custom(val => Object.keys(val).length === 10)
+        .custom(val => Object.keys(val).length === MAX_PUT_PARAMS)
         .withMessage(TOO_MANY_PARAMETERS)
 ]);
 

@@ -3,6 +3,7 @@ import {JUDGE_NOT_FOUND} from "../../../models/errorMessages";
 import {JUDGES} from "../../../models/tableNames";
 import {io} from "../../../app";
 import {judgeDeleteValidator, judgePostValidator, judgePutValidator} from "./judgeValidator";
+import {APIError} from "../../../models/APIError";
 
 const {validationResult} = require('express-validator/check');
 const express = require('express');

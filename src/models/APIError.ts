@@ -1,4 +1,4 @@
-class APIError {
+export class APIError {
     location?: string;
     param?: string;
     msg: string;
