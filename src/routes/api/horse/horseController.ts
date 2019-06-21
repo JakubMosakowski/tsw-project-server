@@ -92,8 +92,6 @@ async function getFirstUnusedHorseNumber(): Promise<Number> {
     return firstUnusedInteger(array);
 }
 
-//todo sprawdz reordeing method dla koni
-
 async function reorderHorses(number: number) {
     return await HorseModel.updateMany({number: {$gt: number}}, {$inc: {number: -1}});
 }

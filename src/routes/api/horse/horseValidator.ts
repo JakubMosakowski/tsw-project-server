@@ -51,7 +51,7 @@ const checkCorrectnessOfNumbers =
     (): ValidationChain => {
         return checkGaps()
             .custom(async val => {
-                const correctLength = await HorseModel.find({}).length;
+                const correctLength = (await HorseModel.find({})).length;
 
                 return val.length == correctLength
             })
@@ -69,9 +69,8 @@ const checkGaps =
 const checkUniqueness =
     (): ValidationChain => {
         return check('horseNumberList')
-            .custom(val => {
-                return checkUniqueValues(val) !== val.length
-            }).withMessage(DUPLICATED_NUMBERS);
+            .custom(val => checkUniqueValues(val) == val.length)
+            .withMessage(DUPLICATED_NUMBERS);
     };
 
 const validateRankEnded =
