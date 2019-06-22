@@ -44,13 +44,12 @@ router.put('/:id', rankPutValidator, async (req, res) => {
 
     let rank = req.body;
     rank.id = req.params.id;
-    const oldRank = (await RankModel.findById(rank.id));
-
-    await RankModel.findByIdAndUpdate(rank.id, rank);
+    const oldRank = (await RankModel.findById(rank.id)).toObject();
 
     if (oldRank.committee.map(item => item.id) != req.body.committee) {
         await clearNotesFromEveryHorseInRank(oldRank, req.body.committee)
     }
+    await RankModel.findByIdAndUpdate(rank.id, rank);
 
     const ranks = await RankModel.all();
     io.emit(RANKS, ranks);

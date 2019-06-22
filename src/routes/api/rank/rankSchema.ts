@@ -22,6 +22,14 @@ rankSchema.set('toJSON', {
     }
 });
 
+rankSchema.set('toObject', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id
+    }
+});
+
 rankSchema.statics = {
     async isExistingRank(id) {
         return await this.findById(id)

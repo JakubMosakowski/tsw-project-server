@@ -26,7 +26,15 @@ const checkJudgesInCommittee =
             .isArray()
             .custom(async val => checkUniqueValues(val) == val.length)
             .withMessage(DUPLICATED_JUDGES)
-            .custom(async val => val.every(async id => await JudgeModel.findById(id).catch()))
+            .custom(async val => {
+                    let pass = true;
+                    for (const id of val) {
+                        pass = (await JudgeModel.findById(id)) != null;
+                        if (!pass) return false
+                    }
+                return pass
+                }
+            )
             .withMessage(JUDGE_NOT_FOUND)
     };
 

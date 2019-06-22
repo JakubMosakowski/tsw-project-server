@@ -59,6 +59,14 @@ horseSchema.set('toJSON', {
     }
 });
 
+horseSchema.set('toObject', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id
+    }
+});
+
 horseSchema.statics = {
     async isExistingHorse(id) {
         return await this.findById(id)

@@ -14,6 +14,14 @@ judgeSchema.set('toJSON', {
     }
 });
 
+judgeSchema.set('toObject', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id
+    }
+});
+
 judgeSchema.statics = {
     async all() {
         return await JudgeModel.find({})
