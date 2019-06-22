@@ -26,7 +26,7 @@ router.post('/',
         }
 
         let rank = req.body;
-        rank.ended = false;
+        rank.finished = false;
         rank.number = await getFirstUnusedRankNumber();
         rank = await RankModel.create(rank);
 

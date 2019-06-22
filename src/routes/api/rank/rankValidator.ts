@@ -64,7 +64,7 @@ export const rankPutValidator = rankValidator.concat([
             return !(await RankModel.all()).map(rank => rank.number).includes(val)
         })
         .withMessage(DUPLICATED_NUMBERS),
-    check('ended').isBoolean().withMessage(VALUE_IS_INVALID("Zakończono")),
+    check('finished').isBoolean().withMessage(VALUE_IS_INVALID("Zakończono")),
     body()
         .custom(val => Object.keys(val).length === 4)
         .withMessage(TOO_MANY_PARAMETERS)

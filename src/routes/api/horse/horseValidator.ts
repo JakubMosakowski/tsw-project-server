@@ -85,11 +85,11 @@ const validateRankEnded =
             .custom(async (val, {req}) => {
                 const rank = await RankModel.findById(val);
                 const horse = await HorseModel.findById(req.params.id).catch();
-                if (!horse && rank.ended) {
+                if (!horse && rank.finished) {
                     return false
                 }
 
-                return rank.ended
+                return rank.finished
                     && (HorseModel.rankChanged(req.params.id, val) || HorseModel.notesChanged(req.params.id, req.body.notes))
             })
             .withMessage(RANK_IS_ENDED)
