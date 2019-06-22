@@ -6,7 +6,7 @@ import {
     JUDGE_NOT_FOUND,
     RANK_IS_USED,
     RANK_NOT_FOUND,
-    TOO_MANY_PARAMETERS
+    TOO_MANY_PARAMETERS, VALUE_IS_INVALID
 } from "../../../models/errorMessages";
 import {HorseModel, JudgeModel, RankModel} from "../../../data/MongoManager";
 import {sanitizedString} from "../customSanitizers";
@@ -31,7 +31,7 @@ const checkJudgesInCommittee =
     };
 
 const rankValidator = [
-    sanitizedString('category'),
+    sanitizedString('category').withMessage(VALUE_IS_INVALID("Kategoria")),
     check('committee.*')
         .isMongoId()
         .withMessage(INCORRECT_ID),
@@ -56,7 +56,7 @@ export const rankPutValidator = rankValidator.concat([
             return !(await RankModel.all()).map(rank => rank.number).includes(val)
         })
         .withMessage(DUPLICATED_NUMBERS),
-    check('ended').isBoolean(),
+    check('ended').isBoolean().withMessage(VALUE_IS_INVALID("Zakończono")),
     body()
         .custom(val => Object.keys(val).length === 4)
         .withMessage(TOO_MANY_PARAMETERS)

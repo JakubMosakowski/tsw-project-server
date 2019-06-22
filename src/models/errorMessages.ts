@@ -19,3 +19,4 @@ export const TOKEN_FAILED = "Sprawdzenie tokenu się nie powiodło.";
 export const ARBITRATOR_VALUE_WRONG = "Rozjemca może dać jedynie liczby naturalne.";
 
 export const SOMETHING_WENT_WRONG = "Coś poszło nie tak.";
+export const VALUE_IS_INVALID =(field)=> `Pole ${field} jest niepoprawne.`;

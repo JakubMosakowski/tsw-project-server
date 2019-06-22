@@ -4,7 +4,7 @@ import {
     ARBITRATOR_VALUE_WRONG,
     DUPLICATED_NUMBERS, GAP_BETWEEN_NUMBERS,
     HORSE_NOT_FOUND, NOTES_NOT_IN_RANGE, NOTES_WRONG, RANK_IS_ENDED,
-    RANK_NOT_FOUND, TOO_MANY_PARAMETERS, WRONG_SIZE_OF_LIST
+    RANK_NOT_FOUND, TOO_MANY_PARAMETERS, VALUE_IS_INVALID, WRONG_SIZE_OF_LIST
 } from "../../../models/errorMessages";
 import {sanitizedString} from "../customSanitizers";
 import {checkUniqueValues} from "../../../extensions";
@@ -92,24 +92,24 @@ const validateRankEnded =
 
 const horseValidator = [
     validateRankEnded(),
-    sanitizedString('name'),
-    sanitizedString('country'),
+    sanitizedString('name').withMessage(VALUE_IS_INVALID("Nazwa")),
+    sanitizedString('country').withMessage(VALUE_IS_INVALID("Kraj")),
     isExistingRank(),
     check('yearOfBirth')
         .isInt()
-        .custom(val => val > 1950 && val < new Date().getFullYear()),
-    sanitizedString('color'),
-    sanitizedString('sex'),
-    sanitizedString('breeder.name'),
-    sanitizedString('breeder.country'),
-    sanitizedString('owner.name'),
-    sanitizedString('owner.country'),
-    sanitizedString('lineage.father.name'),
-    sanitizedString('lineage.father.country'),
-    sanitizedString('lineage.mother.name'),
-    sanitizedString('lineage.mother.country'),
-    sanitizedString("lineage.mothersFather.name"),
-    sanitizedString('lineage.mothersFather.country')
+        .custom(val => val > 1950 && val < new Date().getFullYear()).withMessage(VALUE_IS_INVALID("Rok urodzenia")),
+    sanitizedString('color').withMessage(VALUE_IS_INVALID("Kolor")),
+    sanitizedString('sex').withMessage(VALUE_IS_INVALID("Płeć")),
+    sanitizedString('breeder.name').withMessage(VALUE_IS_INVALID("Nazwa hodowcy")),
+    sanitizedString('breeder.country').withMessage(VALUE_IS_INVALID("Kraj hodowcy")),
+    sanitizedString('owner.name').withMessage(VALUE_IS_INVALID("Nazwa właściciela")),
+    sanitizedString('owner.country').withMessage(VALUE_IS_INVALID("Kraj właściciela")),
+    sanitizedString('lineage.father.name').withMessage(VALUE_IS_INVALID("Nazwa ojca")),
+    sanitizedString('lineage.father.country').withMessage(VALUE_IS_INVALID("Kraj ojca")),
+    sanitizedString('lineage.mother.name').withMessage(VALUE_IS_INVALID("Nazwa matki")),
+    sanitizedString('lineage.mother.country').withMessage(VALUE_IS_INVALID("Kraj matki")),
+    sanitizedString("lineage.mothersFather.name").withMessage(VALUE_IS_INVALID("Nazwa ojca matki")),
+    sanitizedString('lineage.mothersFather.country').withMessage(VALUE_IS_INVALID("Kraj ojca matki")),
 ];
 
 export const horsePostValidator = horseValidator.concat([
