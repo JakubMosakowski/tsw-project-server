@@ -38,6 +38,11 @@ const validateNotesIds =
         return check('notes')
             .isArray()
             .custom(async (val, {req}) => {
+                const horse = await HorseModel.findById(req.params.id);
+                if(horse.rank.id != req.body.rank){
+                    return true;
+                }
+
                 const {committee} = (await RankModel.findById(req.body.rank));
                 const ids = val.map(item => item.judge);
 

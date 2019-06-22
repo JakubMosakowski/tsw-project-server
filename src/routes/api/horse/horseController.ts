@@ -48,7 +48,13 @@ router.put('/:id', horsePutValidator, async (req, res) => {
 
     let horse = req.body;
     horse.id = req.params.id;
-    horse.number = (await HorseModel.findById(horse.id)).number;
+    const oldHorse = await HorseModel.findById(horse.id);
+    horse.number = oldHorse.number;
+
+    if (oldHorse.rank.id != horse.rank) {
+        horse.notes = await fillWithZeros(horse.rank);
+    }
+
     await HorseModel.findByIdAndUpdate(horse.id, horse);
 
     const horses = await HorseModel.all();
