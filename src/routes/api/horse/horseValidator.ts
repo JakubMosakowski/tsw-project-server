@@ -9,6 +9,7 @@ import {
 import {sanitizedString} from "../customSanitizers";
 import {checkUniqueValues} from "../../../extensions";
 const MAX_PUT_PARAMS = 11;
+
 const isExistingRank =
     (): ValidationChain => {
         return sanitizedString('rank')
@@ -50,6 +51,13 @@ const validateNotesIds =
                     && ids.every(i => committee.find(judge => judge.id == i) !== undefined)
             })
             .withMessage(NOTES_WRONG)
+            .custom(async (val,{req})=>{
+                const horse = await HorseModel.findById(req.params.id);
+                if(horse.rank.finished){
+                    return false
+                }
+            })
+            .withMessage(RANK_IS_ENDED)
     };
 
 const checkCorrectnessOfNumbers =
@@ -84,7 +92,7 @@ const validateRankEnded =
             .isMongoId()
             .custom(async (val, {req}) => {
                 const rank = await RankModel.findById(val);
-                const horse = await HorseModel.findById(req.params.id).catch();
+                const horse = await HorseModel.findById(req.params.id);
                 if (!horse && rank.finished) {
                     return false
                 }
