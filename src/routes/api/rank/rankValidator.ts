@@ -32,7 +32,7 @@ const checkJudgesInCommittee =
                         pass = (await JudgeModel.findById(id)) != null;
                         if (!pass) return false
                     }
-                return pass
+                    return pass
                 }
             )
             .withMessage(JUDGE_NOT_FOUND)
@@ -44,12 +44,19 @@ const rankValidator = [
         .isMongoId()
         .withMessage(INCORRECT_ID),
     checkJudgesInCommittee(),
+    body()
+        .custom(val => Object.keys(val).length === 4)
+        .withMessage(TOO_MANY_PARAMETERS)
 ];
 
 export const rankPostValidator = rankValidator.concat([
-    body()
-        .custom(val => Object.keys(val).length === 2)
-        .withMessage(TOO_MANY_PARAMETERS)
+    check('number')
+        .custom(async (val) =>
+            !(await RankModel.all()).map(rank => rank.number).includes(val)
+        )
+        .withMessage(DUPLICATED_NUMBERS),
+    check('finished').isBoolean().withMessage(VALUE_IS_INVALID("Zakończono")),
+
 ]);
 
 export const rankPutValidator = rankValidator.concat([
@@ -63,10 +70,6 @@ export const rankPutValidator = rankValidator.concat([
 
             return !(await RankModel.all()).map(rank => rank.number).includes(val)
         })
-        .withMessage(DUPLICATED_NUMBERS),
-    check('finished').isBoolean().withMessage(VALUE_IS_INVALID("Zakończono")),
-    body()
-        .custom(val => Object.keys(val).length === 4)
-        .withMessage(TOO_MANY_PARAMETERS)
+        .withMessage(DUPLICATED_NUMBERS)
 ]);
 

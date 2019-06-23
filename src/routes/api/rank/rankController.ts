@@ -1,7 +1,6 @@
 import {HorseModel, RankModel} from "../../../data/MongoManager";
 import {io} from "../../../app";
 import {RANKS} from "../../../models/tableNames";
-import {firstUnusedInteger} from "../../../extensions";
 import {rankDeleteValidator, rankPostValidator, rankPutValidator} from "./rankValidator";
 import {RANK_NOT_FOUND} from "../../../models/errorMessages";
 import {Rank} from "../../../models/rank";
@@ -26,8 +25,6 @@ router.post('/',
         }
 
         let rank = req.body;
-        rank.finished = false;
-        rank.number = await getFirstUnusedRankNumber();
         rank = await RankModel.create(rank);
 
         const ranks = await RankModel.all();
@@ -73,10 +70,6 @@ router.delete('/:id', rankDeleteValidator, async (req, res) => {
         }
     });
 });
-
-async function getFirstUnusedRankNumber(): Promise<Number> {
-    return firstUnusedInteger((await RankModel.find()).map(rank => rank.number));
-}
 
 async function clearNotesFromEveryHorseInRank(rank: Rank, committee: [string]) {
     const oldCommittee = rank.committee.map(item => item.id);
