@@ -53,9 +53,11 @@ const validateNotesIds =
             .withMessage(NOTES_WRONG)
             .custom(async (val,{req})=>{
                 const horse = await HorseModel.findById(req.params.id);
-                if(horse.rank.finished){
-                    return false
+                if(horse){
+                    return !horse.rank.finished
                 }
+
+                return true
             })
             .withMessage(RANK_IS_ENDED)
     };
@@ -86,25 +88,38 @@ const checkUniqueness =
             .withMessage(DUPLICATED_NUMBERS);
     };
 
-const validateRankEnded =
+const validateRankEndedInPost =
+    (): ValidationChain => {
+        return sanitizedString('rank')
+            .isMongoId()
+            .custom(async (val) => {
+                const rank = await RankModel.findById(val);
+                if (!rank) {
+                    return false
+                }
+
+                return !rank.finished
+            })
+            .withMessage(RANK_IS_ENDED)
+    };
+
+const validateRankEndedInPut =
     (): ValidationChain => {
         return sanitizedString('rank')
             .isMongoId()
             .custom(async (val, {req}) => {
                 const rank = await RankModel.findById(val);
-                const horse = await HorseModel.findById(req.params.id);
-                if (!horse && rank.finished) {
+                if (!rank) {
                     return false
                 }
 
-                return rank.finished
+                return !rank.finished
                     && (HorseModel.rankChanged(req.params.id, val) || HorseModel.notesChanged(req.params.id, req.body.notes))
             })
             .withMessage(RANK_IS_ENDED)
     };
 
 const horseValidator = [
-    validateRankEnded(),
     sanitizedString('name').withMessage(VALUE_IS_INVALID("Nazwa")),
     sanitizedString('country').withMessage(VALUE_IS_INVALID("Kraj")),
     isExistingRank(),
@@ -126,12 +141,14 @@ const horseValidator = [
 ];
 
 export const horsePostValidator = horseValidator.concat([
+    validateRankEndedInPost(),
     body()
         .custom(val => Object.keys(val).length === 9)
         .withMessage(TOO_MANY_PARAMETERS)
 ]);
 
 export const horsePutValidator = horseValidator.concat([
+    validateRankEndedInPut(),
     check('id')
         .custom(async val => (await HorseModel.findById(val)) !== null)
         .withMessage(HORSE_NOT_FOUND),
