@@ -61,7 +61,7 @@ app.post('/api/reloadDb', async (req, res) => {
 });
 
 function onConnect(socket) {
-    io.on('connection', () => {
+    io.on('connected', () => {
         Promise.all([JudgeModel.all(), HorseModel.all(), RankModel.all()]).then(values => {
             socket.emit(JUDGES, values[0]);
             socket.emit(HORSES, values[1]);
