@@ -45,7 +45,7 @@ connectToDb().then(() => {
     });
     io = socket.listen(server);
     io.set('origins', '*:*');
-    io.on('connect', onConnect);
+    io.on('connection', onConnect);
 }).catch(e => console.log(e));
 
 app.post('/api/reloadDb', async (req, res) => {
@@ -61,13 +61,12 @@ app.post('/api/reloadDb', async (req, res) => {
 });
 
 function onConnect(socket) {
-    io.on('connected', () => {
-        Promise.all([JudgeModel.all(), HorseModel.all(), RankModel.all()]).then(values => {
-            socket.emit(JUDGES, values[0]);
-            socket.emit(HORSES, values[1]);
-            socket.emit(RANKS, values[2]);
-        })
-    });
+    console.log("USER CONNECTED");
+    Promise.all([JudgeModel.all(), HorseModel.all(), RankModel.all()]).then(values => {
+        socket.emit(JUDGES, values[0]);
+        socket.emit(HORSES, values[1]);
+        socket.emit(RANKS, values[2]);
+    })
 }
 
 function fillDb(onFinished, onError) {

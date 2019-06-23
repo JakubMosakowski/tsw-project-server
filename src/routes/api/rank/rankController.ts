@@ -29,7 +29,7 @@ router.post('/',
 
         const ranks = await RankModel.all();
 
-        io.emit(RANKS, ranks);
+        io.sockets.emit(RANKS, ranks);
         res.json(ranks.find(item => item.id == rank.id));
     });
 
@@ -49,7 +49,7 @@ router.put('/:id', rankPutValidator, async (req, res) => {
     await RankModel.findByIdAndUpdate(rank.id, rank);
 
     const ranks = await RankModel.all();
-    io.emit(RANKS, ranks);
+    io.sockets.emit(RANKS, ranks);
     res.json(ranks.find(item => item.id == rank.id));
 });
 
@@ -65,7 +65,7 @@ router.delete('/:id', rankDeleteValidator, async (req, res) => {
         } else {
             const ranks = await RankModel.all();
 
-            io.emit(RANKS, ranks);
+            io.sockets.emit(RANKS, ranks);
             res.json();
         }
     });

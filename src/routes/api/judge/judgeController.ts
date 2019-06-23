@@ -26,7 +26,7 @@ router.post('/',
 
         const judges = await JudgeModel.all();
 
-        io.emit(JUDGES, judges);
+        io.sockets.emit(JUDGES, judges);
         res.json(judges.find(item => item.id == judge.id));
     });
 
@@ -42,7 +42,7 @@ router.put('/:id', judgePutValidator, async (req, res) => {
 
     const judges = await JudgeModel.all();
 
-    io.emit(JUDGES, judges);
+    io.sockets.emit(JUDGES, judges);
     res.json(judges.find(item => item.id == judge.id));
 });
 
@@ -58,7 +58,7 @@ router.delete('/:id', judgeDeleteValidator, async (req, res) => {
         } else {
             const judges = await JudgeModel.all();
 
-            io.emit(JUDGES, judges);
+            io.sockets.emit(JUDGES, judges);
             res.json();
         }
     });

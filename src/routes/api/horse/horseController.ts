@@ -36,7 +36,7 @@ router.post('/',
 
         const horses = await HorseModel.all();
 
-        io.emit(HORSES, horses);
+        io.sockets.emit(HORSES, horses);
         res.json(horses.find(item => item.id == horse.id));
     });
 
@@ -59,7 +59,7 @@ router.put('/:id', horsePutValidator, async (req, res) => {
 
     const horses = await HorseModel.all();
 
-    io.emit(HORSES, horses);
+    io.sockets.emit(HORSES, horses);
     res.json(horses.find(item => item.id == horse.id));
 });
 
@@ -75,7 +75,7 @@ router.post('/rearrangeHorseNumbers', horseRearrangeValidator, async (req, res) 
 
     const horses = await HorseModel.all();
 
-    io.emit(HORSES, horses);
+    io.sockets.emit(HORSES, horses);
     res.json(horses);
 });
 
@@ -111,7 +111,7 @@ router.delete('/:id', async (req, res) => {
             await reorderHorses(item.number);
             const horses = await HorseModel.all();
 
-            io.emit(HORSES, horses);
+            io.sockets.emit(HORSES, horses);
             res.json();
         }
     });
